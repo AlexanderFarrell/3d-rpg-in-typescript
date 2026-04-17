@@ -1,5 +1,5 @@
 import { mat4, quat, vec3 } from "gl-matrix";
-import { Location } from "../math/location";
+import { Location } from "../components/location";
 
 
 export abstract class Camera {
