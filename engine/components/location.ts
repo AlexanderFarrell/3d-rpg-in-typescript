@@ -1,6 +1,7 @@
 import { mat4, quat, vec3 } from "gl-matrix";
+import { Component } from "../world/entity";
 
-export class Location {
+export class Location extends Component {
 	public Position: vec3;
 	public Rotation: quat;
 	public Scale: vec3;
@@ -12,6 +13,7 @@ export class Location {
 		rotation: quat = quat.create(),
 		scale: vec3 = [1, 1, 1],
 	) {
+		super();
 		this.Position = position;
 		this.Rotation = rotation;
 		this.Scale = scale;

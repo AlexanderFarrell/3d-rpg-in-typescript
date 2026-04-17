@@ -9,6 +9,12 @@ export class Texture {
 		this.Data = new Array2D(width, height, () => new Color(0.0, 0.0, 0.0));
 	}
 
+	public static FromColor(color: Color): Texture {
+		let texture = new Texture(1, 1);
+		texture.Data.Set(color, 0, 0);
+		return texture;
+	}
+
 	public static FromImage(image: HTMLImageElement): Texture {
 		const canvas = document.createElement("canvas");
 		canvas.width = image.width;

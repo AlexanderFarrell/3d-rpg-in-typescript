@@ -7,8 +7,7 @@ import type { Texture } from "../visual/texture";
 import { Visual, type Drawable } from "../visual/visual";
 import { Component } from "../world/entity";
 
-
-class Billboard extends Component implements Drawable {
+export class Billboard extends Component implements Drawable {
 	private _texture: Texture;
 	private _material: Material | null = null;
 
