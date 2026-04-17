@@ -1,9 +1,11 @@
+import { PerspectiveCamera, type Camera } from "./camera";
 import { Color } from "./color";
 
 export class Visual {
 	public Canvas: HTMLCanvasElement;
 	private GL: WebGL2RenderingContext;
 	public ClearColor: Color;
+	public Camera: Camera;
 
 	public constructor() {
 		this.Canvas = document.querySelector("canvas")!;
@@ -20,6 +22,10 @@ export class Visual {
 		}
 
 		this.GL = gl!;
+
+		this.Camera = new PerspectiveCamera(
+			this.GL.canvas.width / this.GL.canvas.height
+		);
 	}
 
 	public Draw() {
