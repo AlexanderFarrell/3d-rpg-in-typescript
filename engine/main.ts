@@ -1,13 +1,16 @@
+import { UserInput } from "./input/input";
 import { Visual } from "./visual/visual";
 import { World } from "./world/world";
 
 export class Engine {
 	public static Visual: Visual;
 	public static World: World;
+	public static Input: UserInput;
 
 	public static start(on_setup: () => void) {
 		Engine.Visual = new Visual();
 		Engine.World = new World();
+		Engine.Input = new UserInput();
 		on_setup();
 		this.loop();
 	}

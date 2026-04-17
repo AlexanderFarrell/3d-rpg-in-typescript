@@ -1,6 +1,6 @@
 import { PerspectiveCamera, type Camera } from "./camera";
 import { Color } from "./color";
-import { setGL } from "./gl";
+import { getGL, setGL } from "./gl";
 
 export interface Drawable {
 	Setup(): void;
@@ -13,7 +13,6 @@ export class Visual {
 	public ClearColor: Color;
 	public Camera: Camera;
 
-	private _gl: WebGL2RenderingContext;
 	private _drawables: Set<Drawable> = new Set();
 
 	public constructor() {
@@ -27,11 +26,10 @@ export class Visual {
 			throw new Error(message);
 		}
 
-		this._gl = gl;
 		setGL(gl);
 
 		this.Camera = new PerspectiveCamera(
-			this._gl.canvas.width / this._gl.canvas.height
+			gl.canvas.width / gl.canvas.height
 		);
 		this.Register(this.Camera);
 		this.OnResize();
@@ -41,24 +39,28 @@ export class Visual {
 	}
 
 	private OnResize() {
+		let gl = getGL();
 		this.Canvas.setAttribute("width", String(window.innerWidth));
 		this.Canvas.setAttribute("height", String(window.innerHeight));
-		this._gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+		gl.viewport(0, 0, window.innerWidth, window.innerHeight);
 		(this.Camera as PerspectiveCamera).AspectRatio = window.innerWidth / window.innerHeight;
 		this.Camera.RefreshProjection();
 	}
 
 	public Draw() {
-		this._gl.clearColor(
+		let gl = getGL();
+		gl.clearColor(
 			this.ClearColor.Red,
 			this.ClearColor.Green,
 			this.ClearColor.Blue,
 			this.ClearColor.Alpha
 		);
-		this._gl.clearDepth(1.0);
-		this._gl.enable(this._gl.DEPTH_TEST);
-		this._gl.depthFunc(this._gl.LEQUAL);
-		this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.clearDepth(1.0);
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LEQUAL);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		this._drawables.forEach(drawable => {
 			drawable.Draw();

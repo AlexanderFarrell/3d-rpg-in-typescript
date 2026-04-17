@@ -5,7 +5,7 @@ import type { Drawable } from "./visual";
 export abstract class Camera implements Drawable {
 	private ViewMatrix: mat4;
 	protected ProjectionMatrix: mat4;
-	private Location: Location;
+	public Location: Location;
 	private _matrix: mat4;
 
 	private _target: vec3 = [0, 0, 0];

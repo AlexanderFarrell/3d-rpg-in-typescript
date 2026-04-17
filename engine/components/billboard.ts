@@ -8,6 +8,7 @@ import type { Texture } from "../visual/texture";
 import { type Drawable } from "../visual/visual";
 import { Component } from "../world/entity";
 import { Location } from "./location";
+import type { Updatable } from "../world/world";
 
 export class Billboard extends Component implements Drawable {
 	private _texture: Texture;
