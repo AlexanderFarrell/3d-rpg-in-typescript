@@ -66,3 +66,29 @@ export class UniformMat4 extends Uniform {
 		getGL().uniformMatrix4fv(this.Location, false, this.Mat4)
 	}
 }
+
+export class UniformFloat extends Uniform {
+	public Value: number;
+
+	public constructor(name: string, value: number) {
+		super(name);
+		this.Value = value;
+	}
+
+	Bind(_shader: Shader): void {
+		getGL().uniform1f(this.Location, this.Value);
+	}
+}
+
+export class UniformVec3 extends Uniform {
+	public Value: [number, number, number];
+
+	public constructor(name: string, x: number, y: number, z: number) {
+		super(name);
+		this.Value = [x, y, z];
+	}
+
+	Bind(_shader: Shader): void {
+		getGL().uniform3fv(this.Location, this.Value);
+	}
+}
