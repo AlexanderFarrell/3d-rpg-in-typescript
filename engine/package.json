@@ -1,0 +1,14 @@
+{
+	"name": "engine",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"main": "./main.ts",
+	"types": "./main.ts",
+	"dependencies": {
+		"gl-matrix": "3.4.4"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
+	}
+}

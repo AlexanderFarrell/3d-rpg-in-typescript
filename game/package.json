@@ -1,0 +1,17 @@
+{
+	"name": "game",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite --host",
+		"build": "tsc && vite build"
+	},
+	"dependencies": {
+		"engine": "file:../engine",
+		"vite": "8.0.8"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
+	}
+}

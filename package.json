@@ -1,0 +1,13 @@
+{
+	"name": "3d-rpg-in-typescript",
+	"private": true,
+	"workspaces": [
+		"engine",
+		"game"
+	],
+	"scripts": {
+		"dev": "npm run dev -w game",
+		"build": "npm run build -w game",
+		"lint": "npm run typecheck --workspaces --if-present"
+	}
+}
