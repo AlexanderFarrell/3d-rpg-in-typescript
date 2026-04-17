@@ -34,6 +34,7 @@ export class Visual {
 		this.Camera = new PerspectiveCamera(
 			this.GL.canvas.width / this.GL.canvas.height
 		);
+		this.Register(this.Camera);
 	}
 
 	public Draw() {

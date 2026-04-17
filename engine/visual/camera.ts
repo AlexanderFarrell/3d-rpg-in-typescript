@@ -1,21 +1,22 @@
 import { mat4, quat, vec3 } from "gl-matrix";
 import { Location } from "../components/location";
+import type { Drawable } from "./visual";
 
 
-export abstract class Camera {
+export abstract class Camera implements Drawable {
 	// Positions objects from the 3D world space
 	// into a spot based on the camera. In other words,
 	// it makes the camera the center of the universe.
 	private ViewMatrix: mat4;
 
-	private ProjectionMatrix: mat4;
+	protected ProjectionMatrix: mat4;
 	private Location: Location;
 
 	private _matrix: mat4;
 
 	// Cached values for view matrix
 	private _target: vec3 = [0, 0, 0];
-	private _forward: vec3 = [0, 0, 1];
+	private _forward: vec3 = [0, 0, -1];
 	private _up: vec3 = [0, 1, 0];
 
 	protected constructor() {
@@ -25,7 +26,10 @@ export abstract class Camera {
 		this.Location = new Location();
 	}
 
-	public Update() {
+	Setup(_gl: WebGL2RenderingContext): void {}
+	Breakdown(_gl: WebGL2RenderingContext): void {}
+
+	Draw(_gl: WebGL2RenderingContext): void {
 		this.RefreshView();
 		this.RefreshProjection();
 		mat4.mul(this._matrix, this.ProjectionMatrix, this.ViewMatrix);
@@ -36,7 +40,7 @@ export abstract class Camera {
 	private RefreshView() {
 		this._forward[0] = 0;
 		this._forward[1] = 0;
-		this._forward[2] = 1;
+		this._forward[2] = -1;
 
 		vec3.transformQuat(this._forward, this._forward, this.Location.Rotation);
 		vec3.add(this._target, this.Location.Position, this._forward);
@@ -69,6 +73,12 @@ export class PerspectiveCamera extends Camera {
 	}
 
 	RefreshProjection(): void {
-		throw new Error("Method not implemented.");
+		mat4.perspective(
+			this.ProjectionMatrix,
+			this.Fov * (Math.PI / 180),
+			this.AspectRatio,
+			this.NearPlane,
+			this.FarPlane
+		);
 	}
 }

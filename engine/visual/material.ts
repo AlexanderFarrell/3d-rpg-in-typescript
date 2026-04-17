@@ -14,6 +14,7 @@ export class Material {
 	Bind(gl: WebGL2RenderingContext) {
 		this._shader.bind(gl);
 		this.Uniforms.forEach(uniform => {
+			if (!uniform.IsReady()) uniform.Prepare(gl, this._shader);
 			uniform.Bind(gl, this._shader);
 		})
 	}
@@ -29,6 +30,10 @@ export abstract class Uniform {
 
 	Prepare(gl: WebGL2RenderingContext, shader: Shader) {
 		this.Location = shader.get_uniform_location(gl, this.Name);
+	}
+
+	IsReady(): boolean {
+		return this.Location !== null;
 	}
 
 	abstract Bind(gl: WebGL2RenderingContext, shader: Shader): void;
