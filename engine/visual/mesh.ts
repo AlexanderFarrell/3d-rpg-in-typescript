@@ -6,45 +6,45 @@ export enum DataType {
 }
 
 export class VertexAttribute {
-	public Data: number[];
-	public VertexBuffer: WebGLBuffer | null;
+	public data: number[];
+	public vertexBuffer: WebGLBuffer | null;
 
-	public ElementsPerVertex: number;
-	public ElementType: DataType = DataType.Float;
+	public elementsPerVertex: number;
+	public elementType: DataType = DataType.Float;
 
-	public constructor(elements_per_vertex: number, ...data: number[]) {
-		this.Data = data;
-		this.ElementsPerVertex = elements_per_vertex;
-		this.VertexBuffer = null;
+	public constructor(elementsPerVertex: number, ...data: number[]) {
+		this.data = data;
+		this.elementsPerVertex = elementsPerVertex;
+		this.vertexBuffer = null;
 	}
 
-	public Buffer() {
+	public buffer() {
 		const gl = getGL();
-		gl.deleteBuffer(this.VertexBuffer);
+		gl.deleteBuffer(this.vertexBuffer);
 
-		this.VertexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.VertexBuffer);
+		this.vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER,
-			new Float32Array(this.Data),
+			new Float32Array(this.data),
 			gl.STATIC_DRAW
 		);
 	}
 
-	public Bind(location: number) {
+	public bind(location: number) {
 		const gl = getGL();
 		gl.enableVertexAttribArray(location);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.VertexBuffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 		gl.vertexAttribPointer(
 			location,
-			this.ElementsPerVertex,
-			this.ElementTypeToGLEnum(this.ElementType),
+			this.elementsPerVertex,
+			this.elementTypeToGLEnum(this.elementType),
 			false,
 			0,
 			0
 		);
 	}
 
-	private ElementTypeToGLEnum(type: DataType) {
+	private elementTypeToGLEnum(type: DataType) {
 		const gl = getGL();
 		switch (type) {
 			case DataType.Integer:
@@ -58,54 +58,54 @@ export class VertexAttribute {
 }
 
 export class Mesh {
-	public VertexAttrs: VertexAttribute[];
-	public Indices: number[] = [];
-	public VAO: WebGLVertexArrayObject = 0
+	public vertexAttrs: VertexAttribute[];
+	public indices: number[] = [];
+	public vao: WebGLVertexArrayObject = 0
 
-	private _index_buffer: WebGLBuffer | null = null;
+	private _indexBuffer: WebGLBuffer | null = null;
 
 	public constructor(...attributes: VertexAttribute[]) {
-		this.VertexAttrs = attributes;
+		this.vertexAttrs = attributes;
 	}
 
-	public Buffer() {
-		this.BufferVertices();
-		this.BufferIndices();
+	public buffer() {
+		this.bufferVertices();
+		this.bufferIndices();
 	}
 
-	private BufferVertices() {
+	private bufferVertices() {
 		const gl = getGL();
-		this.VertexAttrs.forEach(attribute => {
-			attribute.Buffer();
+		this.vertexAttrs.forEach(attribute => {
+			attribute.buffer();
 		});
 
-		this.VAO = gl.createVertexArray();
-		gl.bindVertexArray(this.VAO);
+		this.vao = gl.createVertexArray();
+		gl.bindVertexArray(this.vao);
 
-		this.VertexAttrs.forEach((attribute, index) => {
-			attribute.Bind(index);
+		this.vertexAttrs.forEach((attribute, index) => {
+			attribute.bind(index);
 		})
 	}
 
-	private BufferIndices() {
+	private bufferIndices() {
 		const gl = getGL();
-		this._index_buffer = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._index_buffer);
+		this._indexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 		gl.bufferData(
 			gl.ELEMENT_ARRAY_BUFFER,
-			new Uint32Array(this.Indices),
+			new Uint32Array(this.indices),
 			gl.STATIC_DRAW
 		);
 	}
 
-	public Draw() {
+	public draw() {
 		const gl = getGL();
-		gl.bindVertexArray(this.VAO);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._index_buffer);
-		gl.drawElements(gl.TRIANGLES, this.Indices.length, gl.UNSIGNED_INT, 0);
+		gl.bindVertexArray(this.vao);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+		gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_INT, 0);
 	}
 
-	public IsBuffered(): boolean {
-		return this._index_buffer != null;
+	public isBuffered(): boolean {
+		return this._indexBuffer != null;
 	}
 }

@@ -5,41 +5,41 @@ import type { Updatable } from "../world/world";
 
 
 export class FlyCamera extends Component implements Updatable {
-	public MovementSpeed = 4/60.0;
+	public movementSpeed = 4/60.0;
 	private _movement: vec3 = vec3.create();
 
-	on_start(): void {
-		Engine.World.Updatables.add(this);
+	onStart(): void {
+		Engine.world.updatables.add(this);
 	}
 
-	on_end(): void {
-		Engine.World.Updatables.delete(this);
+	onEnd(): void {
+		Engine.world.updatables.delete(this);
 	}
 
-	OnUpdate(): void {
+	onUpdate(): void {
 		this._movement[0] =
-			(Engine.Input.IsDown('d') ? -1.0 : 0.0) + // Strafe right
-			(Engine.Input.IsDown('a') ?  1.0 : 0.0);  // Strafe left
+			(Engine.input.isDown('d') ? -1.0 : 0.0) + // Strafe right
+			(Engine.input.isDown('a') ?  1.0 : 0.0);  // Strafe left
 		this._movement[1] =
-			(Engine.Input.IsDown('g') ?  1.0 : 0.0) + // Move Up
-			(Engine.Input.IsDown('h') ? -1.0 : 0.0);  // Move Down
+			(Engine.input.isDown('g') ?  1.0 : 0.0) + // Move Up
+			(Engine.input.isDown('h') ? -1.0 : 0.0);  // Move Down
 		this._movement[2] =
-			(Engine.Input.IsDown('w') ?  1.0 : 0.0) + // Move Forward
-			(Engine.Input.IsDown('s') ? -1.0 : 0.0);  // Move Backward
+			(Engine.input.isDown('w') ?  1.0 : 0.0) + // Move Forward
+			(Engine.input.isDown('s') ? -1.0 : 0.0);  // Move Backward
 
 		// Multiply by the speed we should go
-		vec3.scale(this._movement, this._movement, this.MovementSpeed);	
-		
+		vec3.scale(this._movement, this._movement, this.movementSpeed);
+
 		// Have the movement go in the direction of the camera
 		vec3.transformQuat(
-			this._movement, // Destination
-			this._movement, // Input
-			Engine.Visual.Camera.Location.Rotation // Quat to rotate with
+			this._movement,
+			this._movement,
+			Engine.visual.camera.location.rotation
 		);
 		vec3.add(
-			Engine.Visual.Camera.Location.Position, // Destination
-			Engine.Visual.Camera.Location.Position, // Input
-			this._movement // Add it to this
+			Engine.visual.camera.location.position,
+			Engine.visual.camera.location.position,
+			this._movement
 		);
 	}
 }

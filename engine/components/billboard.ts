@@ -21,47 +21,47 @@ export class Billboard extends Component implements Drawable {
 		this._texture = texture;
 	}
 
-	on_start(): void {
+	onStart(): void {
 		let location = this.entity!.get(Location);
 		if (location == null) {
 			location = this.entity!.add(new Location());
 		}
 		this._location = location;
-		Engine.Visual.Register(this);
+		Engine.visual.register(this);
 	}
 
-	on_end(): void {
-		Engine.Visual.Unregister(this);
+	onEnd(): void {
+		Engine.visual.unregister(this);
 	}
 
-	Setup(): void {
-		if (!mesh.IsBuffered()) {
-			mesh.Buffer();
-			shader.Setup();
+	setup(): void {
+		if (!mesh.isBuffered()) {
+			mesh.buffer();
+			shader.setup();
 		}
 
-		if (!this._texture.IsBuffered()) {
-			this._texture.Buffer();
+		if (!this._texture.isBuffered()) {
+			this._texture.buffer();
 		}
 
 		this._material = new Material(shader,
-			new UniformMat4("u_camera", Engine.Visual.Camera.Matrix),
+			new UniformMat4("u_camera", Engine.visual.camera.matrix),
 			new UniformTexture("u_texture", this._texture)
 		);
 	}
 
-	Breakdown(): void {}
+	breakdown(): void {}
 
-	Draw(): void {
-		this._location?.Refresh();
-		mat4.mul(this._mvpMatrix, Engine.Visual.Camera.Matrix, this._location!.Matrix);
-		(this._material!.Uniforms[0] as UniformMat4).Mat4 = this._mvpMatrix;
-		this._material!.Bind();
-		mesh.Draw();
+	draw(): void {
+		this._location?.refresh();
+		mat4.mul(this._mvpMatrix, Engine.visual.camera.matrix, this._location!.matrix);
+		(this._material!.uniforms[0] as UniformMat4).mat4 = this._mvpMatrix;
+		this._material!.bind();
+		mesh.draw();
 	}
 }
 
-let mesh = new Mesh(
+const mesh = new Mesh(
 	new VertexAttribute(3,
 		0, 0, 0,
 		1, 0, 0,
@@ -75,9 +75,9 @@ let mesh = new Mesh(
 		0, 0
 	)
 );
-mesh.Indices = [0, 1, 2, 0, 2, 3];
+mesh.indices = [0, 1, 2, 0, 2, 3];
 
-let shader = new Shader(
+const shader = new Shader(
 	new ShaderSource(ShaderType.Vertex, TexturedVertexGLSL),
 	new ShaderSource(ShaderType.Fragment, TexturedFragmentGLSL)
 );

@@ -6,17 +6,17 @@ export enum ShaderType {
 }
 
 export class ShaderSource {
-	public Kind: ShaderType;
-	public Code: string;
+	public kind: ShaderType;
+	public code: string;
 
 	public constructor(kind: ShaderType, code: string) {
-		this.Kind = kind;
-		this.Code = code;
+		this.kind = kind;
+		this.code = code;
 	}
 
-	public GetGLType(): number {
+	public getGLType(): number {
 		const gl = getGL();
-		switch (this.Kind) {
+		switch (this.kind) {
 			case ShaderType.Vertex:
 				return gl.VERTEX_SHADER;
 			case ShaderType.Fragment:
@@ -35,12 +35,12 @@ export class Shader {
 		this._sources = sources;
 	}
 
-	public Setup() {
+	public setup() {
 		const gl = getGL();
 		this._program = gl.createProgram();
 
 		const shaders = this._sources.map(source => {
-			let shader = this.LoadShader(source);
+			let shader = this.loadShader(source);
 			gl.attachShader(this._program!, shader);
 			return shader;
 		})
@@ -57,22 +57,22 @@ export class Shader {
 		})
 	}
 
-	public get_uniform_location(name: string) {
+	public getUniformLocation(name: string) {
 		const gl = getGL();
 		let location = gl.getUniformLocation(this._program!, name);
 		if (location == null) {
 			throw new Error("Failed to get uniform location for " + name);
 		}
-		return location!;
+		return location;
 	}
 
-	public get_attribute_location(name: string) {
+	public getAttributeLocation(name: string) {
 		const gl = getGL();
 		let location = gl.getAttribLocation(this._program!, name);
-		if (location == null) {
+		if (location === -1) {
 			throw new Error("Failed to get attribute location for " + name);
 		}
-		return location!;
+		return location;
 	}
 
 	public bind() {
@@ -83,14 +83,14 @@ export class Shader {
 		getGL().deleteProgram(this._program);
 	}
 
-	private LoadShader(source: ShaderSource): WebGLShader {
+	private loadShader(source: ShaderSource): WebGLShader {
 		const gl = getGL();
-		const shader = gl.createShader(source.GetGLType());
+		const shader = gl.createShader(source.getGLType());
 		if (shader == null) {
 			throw new Error("Failed to create new shader");
 		}
 
-		gl.shaderSource(shader!, source.Code);
+		gl.shaderSource(shader, source.code);
 		gl.compileShader(shader);
 
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -101,7 +101,7 @@ export class Shader {
 		return shader;
 	}
 
-	public IsSetup() {
+	public isSetup() {
 		return this._program != null;
 	}
 }

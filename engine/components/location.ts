@@ -2,9 +2,9 @@ import { mat4, quat, vec3 } from "gl-matrix";
 import { Component } from "../world/entity";
 
 export class Location extends Component {
-	public Position: vec3;
-	public Rotation: quat;
-	public Scale: vec3;
+	public position: vec3;
+	public rotation: quat;
+	public scale: vec3;
 
 	private _matrix: mat4;
 
@@ -14,18 +14,18 @@ export class Location extends Component {
 		scale: vec3 = [1, 1, 1],
 	) {
 		super();
-		this.Position = position;
-		this.Rotation = rotation;
-		this.Scale = scale;
+		this.position = position;
+		this.rotation = rotation;
+		this.scale = scale;
 		this._matrix = mat4.identity(mat4.create());
 	}
 
-	public get Matrix() {
+	public get matrix() {
 		return this._matrix;
 	}
 
-	public Refresh() {
+	public refresh() {
 		mat4.identity(this._matrix);
-		mat4.fromRotationTranslationScale(this._matrix, this.Rotation, this.Position, this.Scale);
+		mat4.fromRotationTranslationScale(this._matrix, this.rotation, this.position, this.scale);
 	}
 }

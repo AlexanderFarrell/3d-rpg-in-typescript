@@ -1,22 +1,22 @@
 import { Entity, type Component } from "./entity";
 
 export interface Updatable {
-	OnUpdate(): void;
+	onUpdate(): void;
 }
 
 export class World {
-	public Entities: Set<Entity> = new Set();
-	public Updatables: Set<Updatable> = new Set();
+	public entities: Set<Entity> = new Set();
+	public updatables: Set<Updatable> = new Set();
 
-	MakeEntity(...components: Component[]): Entity {
+	makeEntity(...components: Component[]): Entity {
 		let entity = new Entity(...components);
-		this.Entities.add(entity);
+		this.entities.add(entity);
 		return entity;
 	}
 
-	Update() {
-		this.Updatables.forEach(updatable => {
-			updatable.OnUpdate();
+	update() {
+		this.updatables.forEach(updatable => {
+			updatable.onUpdate();
 		})
 	}
 }

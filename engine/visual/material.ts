@@ -5,90 +5,90 @@ import type { Texture } from "./texture";
 
 export class Material {
 	private _shader: Shader;
-	public Uniforms: Uniform[];
+	public uniforms: Uniform[];
 
 	constructor(shader: Shader, ...uniforms: Uniform[]) {
-		this.Uniforms = uniforms;
+		this.uniforms = uniforms;
 		this._shader = shader;
 	}
 
-	Bind() {
+	bind() {
 		this._shader.bind();
-		this.Uniforms.forEach(uniform => {
-			if (!uniform.IsReady()) uniform.Prepare(this._shader);
-			uniform.Bind(this._shader);
+		this.uniforms.forEach(uniform => {
+			if (!uniform.isReady()) uniform.prepare(this._shader);
+			uniform.bind(this._shader);
 		})
 	}
 }
 
 export abstract class Uniform {
-	public Name: string;
-	protected Location: WebGLUniformLocation | null = null;
+	public name: string;
+	protected location: WebGLUniformLocation | null = null;
 
 	public constructor(name: string) {
-		this.Name = name;
+		this.name = name;
 	}
 
-	Prepare(shader: Shader) {
-		this.Location = shader.get_uniform_location(this.Name);
+	prepare(shader: Shader) {
+		this.location = shader.getUniformLocation(this.name);
 	}
 
-	IsReady(): boolean {
-		return this.Location !== null;
+	isReady(): boolean {
+		return this.location !== null;
 	}
 
-	abstract Bind(shader: Shader): void;
+	abstract bind(shader: Shader): void;
 }
 
 export class UniformTexture extends Uniform {
-	public Texture: Texture;
+	public texture: Texture;
 
 	public constructor(name: string, texture: Texture) {
 		super(name);
-		this.Texture = texture;
+		this.texture = texture;
 	}
 
-	Bind(_shader: Shader): void {
-		this.Texture.Bind();
-		getGL().uniform1i(this.Location, 0);
+	bind(_shader: Shader): void {
+		this.texture.bind();
+		getGL().uniform1i(this.location, 0);
 	}
 }
 
 export class UniformMat4 extends Uniform {
-	public Mat4: mat4;
+	public mat4: mat4;
 
 	public constructor(name: string, mat4: mat4) {
 		super(name);
-		this.Mat4 = mat4;
+		this.mat4 = mat4;
 	}
 
-	Bind(_shader: Shader): void {
-		getGL().uniformMatrix4fv(this.Location, false, this.Mat4)
+	bind(_shader: Shader): void {
+		getGL().uniformMatrix4fv(this.location, false, this.mat4)
 	}
 }
 
 export class UniformFloat extends Uniform {
-	public Value: number;
+	public value: number;
 
 	public constructor(name: string, value: number) {
 		super(name);
-		this.Value = value;
+		this.value = value;
 	}
 
-	Bind(_shader: Shader): void {
-		getGL().uniform1f(this.Location, this.Value);
+	bind(_shader: Shader): void {
+		getGL().uniform1f(this.location, this.value);
 	}
 }
 
 export class UniformVec3 extends Uniform {
-	public Value: [number, number, number];
+	public value: [number, number, number];
 
 	public constructor(name: string, x: number, y: number, z: number) {
 		super(name);
-		this.Value = [x, y, z];
+		this.value = [x, y, z];
 	}
 
-	Bind(_shader: Shader): void {
-		getGL().uniform3fv(this.Location, this.Value);
+	bind(_shader: Shader): void {
+		getGL().uniform3fv(this.location, this.value);
 	}
 }

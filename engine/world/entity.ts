@@ -1,10 +1,10 @@
 export class Component {
 	entity: Entity | null = null;
-	on_start(): void {}
-	on_end(): void {}
+	onStart(): void {}
+	onEnd(): void {}
 }
 
-// When you say "class Orange" in JavaScript/TypeScript, "Orange" is the 
+// When you say "class Orange" in JavaScript/TypeScript, "Orange" is the
 // class name. This "Orange" class name has a constructor, which you can call
 // by saying "new Orange()"
 //
@@ -16,13 +16,13 @@ export class Entity {
 	private _components = new Map<ComponentConstructor<any>, Component>();
 
 	constructor(...components: Component[]) {
-		// Add them first, then we call setup.
+		// Add them first, then call onStart.
 		components.forEach(component => {
 			this.add(component, false);
 		})
 
 		components.forEach(component => {
-			component.on_start();
+			component.onStart();
 		})
 	}
 
@@ -38,7 +38,7 @@ export class Entity {
 		this._components.set(kind, component);
 
 		if (setup) {
-			component.on_start();
+			component.onStart();
 		}
 		return component;
 	}
@@ -47,7 +47,7 @@ export class Entity {
 		const component = this.get(kind);
 		if (!component) return;
 
-		component.on_end(); 
+		component.onEnd();
 		component.entity = null;
 		this._components.delete(kind);
 	}
@@ -62,7 +62,7 @@ export class Entity {
 
 	clear(): void {
 		this._components.forEach(component => {
-			component.on_end();
+			component.onEnd();
 			component.entity = null;
 		})
 		this._components.clear();

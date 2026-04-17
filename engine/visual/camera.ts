@@ -3,9 +3,9 @@ import { Location } from "../components/location";
 import type { Drawable } from "./visual";
 
 export abstract class Camera implements Drawable {
-	private ViewMatrix: mat4;
-	protected ProjectionMatrix: mat4;
-	public Location: Location;
+	private _viewMatrix: mat4;
+	protected _projectionMatrix: mat4;
+	public location: Location;
 	private _matrix: mat4;
 
 	private _target: vec3 = [0, 0, 0];
@@ -13,58 +13,58 @@ export abstract class Camera implements Drawable {
 	private _up: vec3 = [0, 1, 0];
 
 	protected constructor() {
-		this.ViewMatrix = mat4.create();
-		this.ProjectionMatrix = mat4.create();
+		this._viewMatrix = mat4.create();
+		this._projectionMatrix = mat4.create();
 		this._matrix = mat4.create();
-		this.Location = new Location();
+		this.location = new Location();
 	}
 
-	Setup(): void {}
-	Breakdown(): void {}
+	setup(): void {}
+	breakdown(): void {}
 
-	Draw(): void {
-		this.RefreshView();
-		this.RefreshProjection();
-		mat4.mul(this._matrix, this.ProjectionMatrix, this.ViewMatrix);
+	draw(): void {
+		this.refreshView();
+		this.refreshProjection();
+		mat4.mul(this._matrix, this._projectionMatrix, this._viewMatrix);
 	}
 
-	abstract RefreshProjection(): void;
+	abstract refreshProjection(): void;
 
-	private RefreshView() {
+	private refreshView() {
 		this._forward[0] = 0;
 		this._forward[1] = 0;
 		this._forward[2] = 1;
 
-		vec3.transformQuat(this._forward, this._forward, this.Location.Rotation);
-		vec3.add(this._target, this.Location.Position, this._forward);
+		vec3.transformQuat(this._forward, this._forward, this.location.rotation);
+		vec3.add(this._target, this.location.position, this._forward);
 
-		mat4.lookAt(this.ViewMatrix, this.Location.Position, this._target, this._up);
+		mat4.lookAt(this._viewMatrix, this.location.position, this._target, this._up);
 	}
 
-	public get Matrix() {
+	public get matrix() {
 		return this._matrix;
 	}
 }
 
 export class PerspectiveCamera extends Camera {
-	public AspectRatio: number;
-	public Fov: number;
-	public NearPlane: number = 0.5;
-	public FarPlane: number = 200.0;
+	public aspectRatio: number;
+	public fov: number;
+	public nearPlane: number = 0.5;
+	public farPlane: number = 200.0;
 
 	public constructor(aspectRatio: number, fov: number = 85.0) {
 		super();
-		this.AspectRatio = aspectRatio;
-		this.Fov = fov;
+		this.aspectRatio = aspectRatio;
+		this.fov = fov;
 	}
 
-	RefreshProjection(): void {
+	refreshProjection(): void {
 		mat4.perspective(
-			this.ProjectionMatrix,
-			this.Fov * (Math.PI / 180),
-			this.AspectRatio,
-			this.NearPlane,
-			this.FarPlane
+			this._projectionMatrix,
+			this.fov * (Math.PI / 180),
+			this.aspectRatio,
+			this.nearPlane,
+			this.farPlane
 		);
 	}
 }

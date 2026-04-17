@@ -2,24 +2,23 @@ import type { vec3 } from "gl-matrix";
 
 // Defines a color out of RGBA values
 export class Color {
-	public Red: number;
-	public Green: number;
-	public Blue: number;
-	public Alpha: number;
+	public red: number;
+	public green: number;
+	public blue: number;
+	public alpha: number;
 
-	// Makes a new color, alpha has a default in case we don't want to specify.
-	// It defaults to fully opaque (no transparency)
+	// Makes a new color, alpha defaults to fully opaque
 	constructor(red: number, green: number, blue: number, alpha: number = 1.0) {
-		this.Red = red;
-		this.Green = green;
-		this.Blue = blue;
-		this.Alpha = alpha;
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+		this.alpha = alpha;
 	}
 
-	public get Vec3(): vec3 {
-		return [this.Red, this.Green, this.Blue]
+	public get vec3(): vec3 {
+		return [this.red, this.green, this.blue]
 	}
 
 	// Feel free to add as many as you like/need
-	static readonly Blue = new Color(0, 0, 1);
+	static readonly blue = new Color(0, 0, 1);
 }

@@ -3,31 +3,31 @@ import { Visual } from "./visual/visual";
 import { World } from "./world/world";
 
 export class Engine {
-	public static Visual: Visual;
-	public static World: World;
-	public static Input: UserInput;
+	public static visual: Visual;
+	public static world: World;
+	public static input: UserInput;
 
-	public static start(on_setup: () => void) {
-		Engine.Visual = new Visual();
-		Engine.World = new World();
-		Engine.Input = new UserInput();
-		on_setup();
-		this.loop();
+	public static start(onSetup: () => void) {
+		Engine.visual = new Visual();
+		Engine.world = new World();
+		Engine.input = new UserInput();
+		onSetup();
+		Engine.loop();
 	}
 
 	private static loop() {
-		this.update();
-		this.draw();
+		Engine.update();
+		Engine.draw();
 		requestAnimationFrame(() => {
 			Engine.loop();
 		});
 	}
 
 	private static update() {
-		Engine.World.Update();
+		Engine.world.update();
 	}
 
 	private static draw() {
-		Engine.Visual.Draw();
+		Engine.visual.draw();
 	}
 }
