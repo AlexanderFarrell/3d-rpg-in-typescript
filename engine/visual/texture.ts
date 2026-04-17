@@ -1,5 +1,6 @@
 import { Array2D } from "../util/array2d";
 import { Color } from "./color";
+import { getGL } from "./gl";
 
 export class Texture {
 	public Data: Array2D<Color>;
@@ -43,6 +44,9 @@ export class Texture {
 		img.addEventListener('load', () => {
 			const loaded = Texture.FromImage(img);
 			texture.Data = loaded.Data;
+			if (texture.IsBuffered()) {
+				texture.Buffer();
+			}
 		});
 		return texture;
 	}
@@ -64,7 +68,8 @@ export class Texture {
 		return buf;
 	}
 
-	public Buffer(gl: WebGL2RenderingContext) {
+	public Buffer() {
+		const gl = getGL();
 		if (this._glTexture) {
 			gl.deleteTexture(this._glTexture);
 		}
@@ -84,12 +89,14 @@ export class Texture {
 		return this._glTexture !== null;
 	}
 
-	public Bind(gl: WebGL2RenderingContext, unit: number = 0) {
+	public Bind(unit: number = 0) {
+		const gl = getGL();
 		gl.activeTexture(gl.TEXTURE0 + unit);
 		gl.bindTexture(gl.TEXTURE_2D, this._glTexture);
 	}
 
-	public Destroy(gl: WebGL2RenderingContext) {
+	public Destroy() {
+		const gl = getGL();
 		if (this._glTexture) {
 			gl.deleteTexture(this._glTexture);
 			this._glTexture = null;

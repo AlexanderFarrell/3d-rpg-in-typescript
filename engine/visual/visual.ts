@@ -1,78 +1,77 @@
 import { PerspectiveCamera, type Camera } from "./camera";
 import { Color } from "./color";
+import { setGL } from "./gl";
 
 export interface Drawable {
-	Setup(gl: WebGL2RenderingContext): void;
-	Breakdown(gl: WebGL2RenderingContext): void;
-	Draw(gl: WebGL2RenderingContext): void;
+	Setup(): void;
+	Breakdown(): void;
+	Draw(): void;
 }
 
 export class Visual {
 	public Canvas: HTMLCanvasElement;
-	private GL: WebGL2RenderingContext;
 	public ClearColor: Color;
 	public Camera: Camera;
 
+	private _gl: WebGL2RenderingContext;
 	private _drawables: Set<Drawable> = new Set();
 
 	public constructor() {
 		this.Canvas = document.querySelector("canvas")!;
 		this.ClearColor = new Color(0.2, 0.6, 0.9);
-		
-		// Try to start WebGL
+
 		let gl = this.Canvas.getContext("webgl2");
 		if (gl == null) {
-			// If this happens, webgl2 is not supported
-			// We should notify the user and stop
 			let message = "Error: WebGL2 failed to start. It may not be supported on this device."
 			this.Canvas.innerHTML = message;
 			throw new Error(message);
 		}
 
-		this.GL = gl!;
+		this._gl = gl;
+		setGL(gl);
 
 		this.Camera = new PerspectiveCamera(
-			this.GL.canvas.width / this.GL.canvas.height
+			this._gl.canvas.width / this._gl.canvas.height
 		);
 		this.Register(this.Camera);
+		this.OnResize();
+		window.addEventListener('resize', () => {
+			this.OnResize();
+		})
+	}
+
+	private OnResize() {
+		this.Canvas.setAttribute("width", String(window.innerWidth));
+		this.Canvas.setAttribute("height", String(window.innerHeight));
+		this._gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+		(this.Camera as PerspectiveCamera).AspectRatio = window.innerWidth / window.innerHeight;
+		this.Camera.RefreshProjection();
 	}
 
 	public Draw() {
-		// What color is the default (what we start with) each frame
-		this.GL.clearColor(
+		this._gl.clearColor(
 			this.ClearColor.Red,
 			this.ClearColor.Green,
 			this.ClearColor.Blue,
 			this.ClearColor.Alpha
 		);
-
-		// These are how we determine what objects are behind which
-
-		// Distance of the "camera depth"
-		this.GL.clearDepth(1.0); 
-
-		// Actually enable testing
-		this.GL.enable(this.GL.DEPTH_TEST); 
-		
-		// How do we know what is behind what?
-		this.GL.depthFunc(this.GL.LEQUAL);
-
-
-		// This is where we actually clear the frame
-		this.GL.clear(this.GL.COLOR_BUFFER_BIT | this.GL.DEPTH_BUFFER_BIT);
+		this._gl.clearDepth(1.0);
+		this._gl.enable(this._gl.DEPTH_TEST);
+		this._gl.depthFunc(this._gl.LEQUAL);
+		this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 
 		this._drawables.forEach(drawable => {
-			drawable.Draw(this.GL);
+			drawable.Draw();
 		})
 	}
 
 	public Register(drawable: Drawable) {
 		this._drawables.add(drawable);
-		drawable.Setup(this.GL);
+		drawable.Setup();
 	}
 
 	public Unregister(drawable: Drawable) {
-		drawable.Breakdown(this.GL);
+		drawable.Breakdown();
 		this._drawables.delete(drawable);
 	}
 }

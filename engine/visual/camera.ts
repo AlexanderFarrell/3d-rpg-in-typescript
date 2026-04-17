@@ -1,20 +1,13 @@
-import { mat4, quat, vec3 } from "gl-matrix";
+import { mat4, vec3 } from "gl-matrix";
 import { Location } from "../components/location";
 import type { Drawable } from "./visual";
 
-
 export abstract class Camera implements Drawable {
-	// Positions objects from the 3D world space
-	// into a spot based on the camera. In other words,
-	// it makes the camera the center of the universe.
 	private ViewMatrix: mat4;
-
 	protected ProjectionMatrix: mat4;
 	private Location: Location;
-
 	private _matrix: mat4;
 
-	// Cached values for view matrix
 	private _target: vec3 = [0, 0, 0];
 	private _forward: vec3 = [0, 0, -1];
 	private _up: vec3 = [0, 1, 0];
@@ -26,10 +19,10 @@ export abstract class Camera implements Drawable {
 		this.Location = new Location();
 	}
 
-	Setup(_gl: WebGL2RenderingContext): void {}
-	Breakdown(_gl: WebGL2RenderingContext): void {}
+	Setup(): void {}
+	Breakdown(): void {}
 
-	Draw(_gl: WebGL2RenderingContext): void {
+	Draw(): void {
 		this.RefreshView();
 		this.RefreshProjection();
 		mat4.mul(this._matrix, this.ProjectionMatrix, this.ViewMatrix);
@@ -54,16 +47,9 @@ export abstract class Camera implements Drawable {
 }
 
 export class PerspectiveCamera extends Camera {
-	// Ratio of width/height of the monitor/view
 	public AspectRatio: number;
-
-	// Angle of left side of eye to right side of eye.
 	public Fov: number;
-
-	// How close can objects be viewed before clipped?
 	public NearPlane: number = 0.5;
-
-	// How far can objects be viewed before clipped?
 	public FarPlane: number = 200.0;
 
 	public constructor(aspectRatio: number, fov: number = 85.0) {

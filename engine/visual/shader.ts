@@ -1,4 +1,4 @@
-
+import { getGL } from "./gl";
 
 export enum ShaderType {
 	Vertex,
@@ -14,7 +14,8 @@ export class ShaderSource {
 		this.Code = code;
 	}
 
-	public GetGLType(gl: WebGL2RenderingContext): number {
+	public GetGLType(): number {
+		const gl = getGL();
 		switch (this.Kind) {
 			case ShaderType.Vertex:
 				return gl.VERTEX_SHADER;
@@ -34,30 +35,30 @@ export class Shader {
 		this._sources = sources;
 	}
 
-	public Setup(gl: WebGL2RenderingContext) {
+	public Setup() {
+		const gl = getGL();
 		this._program = gl.createProgram();
 
 		const shaders = this._sources.map(source => {
-			let shader = this.LoadShader(gl, source);
+			let shader = this.LoadShader(source);
 			gl.attachShader(this._program!, shader);
 			return shader;
 		})
 
-		// Link everything together.
 		gl.linkProgram(this._program);
 
 		if (!gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
 			throw new Error("Error linking shader: " + gl.getProgramInfoLog(this._program));
 		}
 
-		// Clean up the attached source code (it's already compiled, no need to keep attached)
 		shaders.forEach(shader => {
 			gl.detachShader(this._program!, shader);
 			gl.deleteShader(shader);
 		})
 	}
 
-	public get_uniform_location(gl: WebGL2RenderingContext, name: string) {
+	public get_uniform_location(name: string) {
+		const gl = getGL();
 		let location = gl.getUniformLocation(this._program!, name);
 		if (location == null) {
 			throw new Error("Failed to get uniform location for " + name);
@@ -65,7 +66,8 @@ export class Shader {
 		return location!;
 	}
 
-	public get_attribute_location(gl: WebGL2RenderingContext, name: string) {
+	public get_attribute_location(name: string) {
+		const gl = getGL();
 		let location = gl.getAttribLocation(this._program!, name);
 		if (location == null) {
 			throw new Error("Failed to get attribute location for " + name);
@@ -73,28 +75,24 @@ export class Shader {
 		return location!;
 	}
 
-	public bind(gl: WebGL2RenderingContext) {
-		gl.useProgram(this._program);
+	public bind() {
+		getGL().useProgram(this._program);
 	}
 
-	public destroy(gl: WebGL2RenderingContext) {
-		gl.deleteProgram(this._program);
+	public destroy() {
+		getGL().deleteProgram(this._program);
 	}
 
-	private LoadShader(gl: WebGL2RenderingContext, source: ShaderSource): WebGLShader {
-		// Make a new shader
-		const shader = gl.createShader(source.GetGLType(gl));
+	private LoadShader(source: ShaderSource): WebGLShader {
+		const gl = getGL();
+		const shader = gl.createShader(source.GetGLType());
 		if (shader == null) {
 			throw new Error("Failed to create new shader");
 		}
 
-		// Actually put the GLSL source code of the shader into it.
 		gl.shaderSource(shader!, source.Code);
-
-		// Then compile the GLSL source code.
 		gl.compileShader(shader);
 
-		// Check that it worked, if not then throw
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			const errorMessage = gl.getShaderInfoLog(shader);
 			gl.deleteShader(shader);
@@ -107,4 +105,3 @@ export class Shader {
 		return this._program != null;
 	}
 }
-

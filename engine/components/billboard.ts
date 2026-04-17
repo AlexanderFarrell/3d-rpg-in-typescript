@@ -5,7 +5,7 @@ import { Material, UniformMat4, UniformTexture } from "../visual/material";
 import { Mesh, VertexAttribute } from "../visual/mesh";
 import { Shader, ShaderSource, ShaderType } from "../visual/shader";
 import type { Texture } from "../visual/texture";
-import { Visual, type Drawable } from "../visual/visual";
+import { type Drawable } from "../visual/visual";
 import { Component } from "../world/entity";
 import { Location } from "./location";
 
@@ -33,45 +33,40 @@ export class Billboard extends Component implements Drawable {
 		Engine.Visual.Unregister(this);
 	}
 
-	Setup(gl: WebGL2RenderingContext): void {
-		// Lazy buffer the shared mesh if not already
+	Setup(): void {
 		if (!mesh.IsBuffered()) {
-			mesh.Buffer(gl);
-			shader.Setup(gl);
+			mesh.Buffer();
+			shader.Setup();
 		}
 
 		if (!this._texture.IsBuffered()) {
-			this._texture.Buffer(gl);
+			this._texture.Buffer();
 		}
 
-		this._material = new Material(shader, 
+		this._material = new Material(shader,
 			new UniformMat4("u_camera", Engine.Visual.Camera.Matrix),
 			new UniformTexture("u_texture", this._texture)
 		);
 	}
 
-	Breakdown(gl: WebGL2RenderingContext): void {
-	}
+	Breakdown(): void {}
 
-	Draw(gl: WebGL2RenderingContext): void {
+	Draw(): void {
 		this._location?.Refresh();
 		mat4.mul(this._mvpMatrix, Engine.Visual.Camera.Matrix, this._location!.Matrix);
 		(this._material!.Uniforms[0] as UniformMat4).Mat4 = this._mvpMatrix;
-		this._material!.Bind(gl);
-		mesh.Draw(gl);
+		this._material!.Bind();
+		mesh.Draw();
 	}
 }
 
-// Shared mesh
 let mesh = new Mesh(
-	// Positions (attribute 0)
 	new VertexAttribute(3,
 		0, 0, 0,
 		1, 0, 0,
 		1, 1, 0,
 		0, 1, 0
 	),
-	// UVs (attribute 1)
 	new VertexAttribute(2,
 		0, 0,
 		1, 0,
@@ -81,14 +76,7 @@ let mesh = new Mesh(
 );
 mesh.Indices = [0, 1, 2, 0, 2, 3];
 
-// Shared shader
 let shader = new Shader(
-	new ShaderSource(
-		ShaderType.Vertex,
-		TexturedVertexGLSL
-	),
-	new ShaderSource(
-		ShaderType.Fragment,
-		TexturedFragmentGLSL
-	)
+	new ShaderSource(ShaderType.Vertex, TexturedVertexGLSL),
+	new ShaderSource(ShaderType.Fragment, TexturedFragmentGLSL)
 );

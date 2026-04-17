@@ -1,3 +1,4 @@
+import { getGL } from "./gl";
 import type { mat4 } from "gl-matrix";
 import type { Shader } from "./shader";
 import type { Texture } from "./texture";
@@ -5,17 +6,17 @@ import type { Texture } from "./texture";
 export class Material {
 	private _shader: Shader;
 	public Uniforms: Uniform[];
-	
+
 	constructor(shader: Shader, ...uniforms: Uniform[]) {
 		this.Uniforms = uniforms;
 		this._shader = shader;
 	}
 
-	Bind(gl: WebGL2RenderingContext) {
-		this._shader.bind(gl);
+	Bind() {
+		this._shader.bind();
 		this.Uniforms.forEach(uniform => {
-			if (!uniform.IsReady()) uniform.Prepare(gl, this._shader);
-			uniform.Bind(gl, this._shader);
+			if (!uniform.IsReady()) uniform.Prepare(this._shader);
+			uniform.Bind(this._shader);
 		})
 	}
 }
@@ -28,15 +29,15 @@ export abstract class Uniform {
 		this.Name = name;
 	}
 
-	Prepare(gl: WebGL2RenderingContext, shader: Shader) {
-		this.Location = shader.get_uniform_location(gl, this.Name);
+	Prepare(shader: Shader) {
+		this.Location = shader.get_uniform_location(this.Name);
 	}
 
 	IsReady(): boolean {
 		return this.Location !== null;
 	}
 
-	abstract Bind(gl: WebGL2RenderingContext, shader: Shader): void;
+	abstract Bind(shader: Shader): void;
 }
 
 export class UniformTexture extends Uniform {
@@ -47,9 +48,9 @@ export class UniformTexture extends Uniform {
 		this.Texture = texture;
 	}
 
-	Bind(gl: WebGL2RenderingContext, shader: Shader): void {
-		this.Texture.Bind(gl);
-		gl.uniform1i(this.Location, 0);
+	Bind(_shader: Shader): void {
+		this.Texture.Bind();
+		getGL().uniform1i(this.Location, 0);
 	}
 }
 
@@ -61,7 +62,7 @@ export class UniformMat4 extends Uniform {
 		this.Mat4 = mat4;
 	}
 
-	Bind(gl: WebGL2RenderingContext, shader: Shader): void {
-		gl.uniformMatrix4fv(this.Location, false, this.Mat4)
+	Bind(_shader: Shader): void {
+		getGL().uniformMatrix4fv(this.Location, false, this.Mat4)
 	}
 }

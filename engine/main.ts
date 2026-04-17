@@ -26,6 +26,5 @@ export class Engine {
 
 	private static draw() {
 		Engine.Visual.Draw();
-		console.log("draw")
 	}
 }

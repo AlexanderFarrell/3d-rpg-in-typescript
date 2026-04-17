@@ -1,3 +1,5 @@
+import { getGL } from "./gl";
+
 export enum DataType {
 	Integer,
 	Float
@@ -16,7 +18,8 @@ export class VertexAttribute {
 		this.VertexBuffer = null;
 	}
 
-	public Buffer(gl: WebGL2RenderingContext) {
+	public Buffer() {
+		const gl = getGL();
 		gl.deleteBuffer(this.VertexBuffer);
 
 		this.VertexBuffer = gl.createBuffer();
@@ -27,20 +30,22 @@ export class VertexAttribute {
 		);
 	}
 
-	public Bind(gl: WebGL2RenderingContext, location: number) {
+	public Bind(location: number) {
+		const gl = getGL();
 		gl.enableVertexAttribArray(location);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.VertexBuffer);
 		gl.vertexAttribPointer(
 			location,
 			this.ElementsPerVertex,
-			this.ElementTypeToGLEnum(gl, this.ElementType),
+			this.ElementTypeToGLEnum(this.ElementType),
 			false,
 			0,
 			0
 		);
 	}
 
-	private ElementTypeToGLEnum(gl: WebGL2RenderingContext, type: DataType) {
+	private ElementTypeToGLEnum(type: DataType) {
+		const gl = getGL();
 		switch (type) {
 			case DataType.Integer:
 				return gl.INT
@@ -52,7 +57,6 @@ export class VertexAttribute {
 	}
 }
 
-// Stores the mesh on the CPU, and then can buffer it on the GPU
 export class Mesh {
 	public VertexAttrs: VertexAttribute[];
 	public Indices: number[] = [];
@@ -64,36 +68,38 @@ export class Mesh {
 		this.VertexAttrs = attributes;
 	}
 
-	public Buffer(gl: WebGL2RenderingContext) {
-		this.BufferVertices(gl);
-		this.BufferIndices(gl);
+	public Buffer() {
+		this.BufferVertices();
+		this.BufferIndices();
 	}
 
-	private BufferVertices(gl: WebGL2RenderingContext) {
+	private BufferVertices() {
+		const gl = getGL();
 		this.VertexAttrs.forEach(attribute => {
-			attribute.Buffer(gl);
+			attribute.Buffer();
 		});
 
-		// Initialize the VAO
 		this.VAO = gl.createVertexArray();
 		gl.bindVertexArray(this.VAO);
 
 		this.VertexAttrs.forEach((attribute, index) => {
-			attribute.Bind(gl, index);
+			attribute.Bind(index);
 		})
 	}
 
-	private BufferIndices(gl: WebGL2RenderingContext) {
+	private BufferIndices() {
+		const gl = getGL();
 		this._index_buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._index_buffer);
 		gl.bufferData(
 			gl.ELEMENT_ARRAY_BUFFER,
-			new Uint32Array(this.Indices), // I'm lazy, we could probably use Uint16 later
+			new Uint32Array(this.Indices),
 			gl.STATIC_DRAW
 		);
 	}
 
-	public Draw(gl: WebGL2RenderingContext) {
+	public Draw() {
+		const gl = getGL();
 		gl.bindVertexArray(this.VAO);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._index_buffer);
 		gl.drawElements(gl.TRIANGLES, this.Indices.length, gl.UNSIGNED_INT, 0);
