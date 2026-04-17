@@ -1,3 +1,7 @@
+// This file lets us organize our objects in the world into "entities"
+// Entities have attributes about them we call "components".
+
+// A part of some entity, such as it's location.
 export class Component {
 	entity: Entity | null = null;
 	onStart(): void {}
@@ -12,6 +16,8 @@ export class Component {
 // ...so "Orange" would satisfy this, because we can do "new Orange()" and get an Orange back.
 type ComponentConstructor<T extends Component> = new (...args: any[]) => T;
 
+// Represents a single "thing" or "object" in the world, with various
+// sub-parts called "components"
 export class Entity {
 	private _components = new Map<ComponentConstructor<any>, Component>();
 
@@ -26,6 +32,7 @@ export class Entity {
 		})
 	}
 
+	// Adds a new entity, calling its onStart() (unless you want to ignore)
 	add<T extends Component>(component: T, setup: boolean = true): T {
 		// Instances of a class know their own constructor, we get it.
 		const kind = component.constructor as ComponentConstructor<T>;
@@ -43,6 +50,7 @@ export class Entity {
 		return component;
 	}
 
+	// Removes an entity of a given type, calling its onEnd() function.
 	remove<T extends Component>(kind: ComponentConstructor<T>): void {
 		const component = this.get(kind);
 		if (!component) return;
@@ -52,14 +60,17 @@ export class Entity {
 		this._components.delete(kind);
 	}
 
+	// Returns whether this object has a component of a given type.
 	has<T extends Component>(kind: ComponentConstructor<T>): boolean {
 		return this._components.has(kind);
 	}
 
+	// Gets a component of a given type, returns undefined if it doesn't have it.
 	get<T extends Component>(kind: ComponentConstructor<T>): T | undefined {
 		return this._components.get(kind) as T;
 	}
 
+	// Removes all components, calling each onEnd() function
 	clear(): void {
 		this._components.forEach(component => {
 			component.onEnd();
