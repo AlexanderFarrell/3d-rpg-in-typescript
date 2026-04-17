@@ -9,12 +9,23 @@ import { Shader, ShaderSource, ShaderType } from "../visual/shader";
 import { ColorLitFragmentGLSL, ColorLitVertexGLSL } from "../assets/asset_map";
 import { Engine } from "../main";
 
+// Represents a landscape, and builds a geometry of triangles 
+// into a landscape
 export class Terrain extends Component implements Drawable {
+	// A 2D grid of how high the terrain is at each point.
 	public heightMap: Array2D<number>;
+
+	// How big is each cell in the grid? 
+	public cellSize: number = 1;
+
+	// The geometry if made
 	private _mesh: Mesh | null = null;
 	private _material: Material | null = null;
+
+	// This is for storage later, by storing normals during the mesh
+	// creation, we actually speed up calculating normals by 4x, because
+	// we don't have to repeat ourselves.
 	private _normalMap: Array2D<vec3>;
-	public cellSize: number = 1;
 
 	public constructor(width: number, height: number) {
 		super();
@@ -36,8 +47,11 @@ export class Terrain extends Component implements Drawable {
 		}
 
 		this._material = new Material(terrainShader,
+			// Orientation of the camera
 			new UniformMat4("u_camera", Engine.visual.camera.matrix),
+			// Where is the light coming from. This can be greatly improved in later videos.
 			new UniformVec3("u_light_direction", 1, 2, 1),
+			// The minimum light applied to everything.
 			new UniformFloat("u_ambient", 0.3)
 		);
 	}
@@ -54,16 +68,25 @@ export class Terrain extends Component implements Drawable {
 
 	private getNormalAt(x: number, y: number): vec3 {
 		const h = this.heightMap;
+
+		// We just average the adjacent spots around the point...
+		// Some of these checks are just making sure we aren't on
+		// an edge, so we don't step out of bounds.
 		const l = h.get(x > 0            ? x - 1 : x, y)!;
 		const r = h.get(x < h.width  - 1 ? x + 1 : x, y)!;
 		const d = h.get(x, y > 0            ? y - 1 : y)!;
 		const u = h.get(x, y < h.height - 1 ? y + 1 : y)!;
+
+		// Brings them together.
 		const n = vec3.fromValues(l - r, 2.0, d - u);
 		vec3.normalize(n, n);
 		return n;
 	}
 
+	// Actually builds (or refreshes) the terrain geometry and sends it to the graphics
+	// card
 	updateMesh() {
+		// If this is the first time, allocate memory for everything. Otherwise, we recycle this.
 		if (this._mesh == null) {
 			let counts = 3 * 4 * (this.heightMap.width - 1) * (this.heightMap.height - 1);
 
@@ -75,6 +98,7 @@ export class Terrain extends Component implements Drawable {
 			this._mesh.indices = new Array<number>(6 * (this.heightMap.width - 1) * (this.heightMap.height - 1)).fill(0);
 		}
 
+		// Get each list of attributes
 		let positions = this._mesh.vertexAttrs[0];
 		let normals = this._mesh.vertexAttrs[1];
 		let colors = this._mesh.vertexAttrs[2];
@@ -83,6 +107,7 @@ export class Terrain extends Component implements Drawable {
 		let vertexOffset = 0;
 		let indexOffset = 0;
 
+		// Really nice helper functions, this becomes even longer without these.
 		let setXYZ = (array: Array<number>, offset: number, x: number, y: number, z: number) => {
 			array[offset + 0] = x;
 			array[offset + 1] = y;
@@ -96,8 +121,18 @@ export class Terrain extends Component implements Drawable {
 
 		let color = new Color(0.3, 0.8, 0.4);
 
+		// You'll find in this code that we do (+ 0) multiple times...
+		// ...isn't this a waste?
+		//
+		// Well, its for readability, and the V8 engine and other engines
+		// are great at optimizing it out, so it doesn't matter. Code is for
+		// humans more, rather than for machines. The zeros will also
+		// help us make less mistakes when putting everything in.
 		for (let y = 0; y < this.heightMap.height - 1; y++) {
 			for (let x = 0; x < this.heightMap.width - 1; x++) {
+				// Okay so for each cell, we want to make 4 dots (vertices)
+				// and then make 2 triangles out of them. 
+
 				// Find normals first
 				this._normalMap.set(this.getNormalAt(x + 0, y + 0), x + 0, y + 0);
 				this._normalMap.set(this.getNormalAt(x + 1, y + 0), x + 1, y + 0);
@@ -105,21 +140,25 @@ export class Terrain extends Component implements Drawable {
 				this._normalMap.set(this.getNormalAt(x + 1, y + 1), x + 1, y + 1);
 
 				// Positions
+				// x0y0
 				setXYZ(positions!.data, vertexOffset + 0,
 					(x + 0) * this.cellSize,
 					this.heightMap.get(x + 0, y + 0)!,
 					(y + 0) * this.cellSize
 				);
+				//x1y0
 				setXYZ(positions!.data, vertexOffset + 3,
 					(x + 1) * this.cellSize,
 					this.heightMap.get(x + 1, y + 0)!,
 					(y + 0) * this.cellSize
 				);
+				//x0y1
 				setXYZ(positions!.data, vertexOffset + 6,
 					(x + 0) * this.cellSize,
 					this.heightMap.get(x + 0, y + 1)!,
 					(y + 1) * this.cellSize
 				);
+				//x1y1
 				setXYZ(positions!.data, vertexOffset + 9,
 					(x + 1) * this.cellSize,
 					this.heightMap.get(x + 1, y + 1)!,

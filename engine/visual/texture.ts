@@ -2,20 +2,31 @@ import { Array2D } from "../util/array2d";
 import { Color } from "./color";
 import { getGL } from "./gl";
 
+// Represents an image which can be projected onto
+// some geometry, a computer graphics technique for
+// making things look much more detailed than they really are :O
 export class Texture {
+	// All the color data.
 	public data: Array2D<Color>;
+
+	// The texture on the graphics card... if it has been buffered there.
 	private _glTexture: WebGLTexture | null = null;
 
+	// Makes a new empty texture, by which you can then modify the pixels.
+	// Just call buffer() when you're ready :)
 	public constructor(width: number, height: number) {
 		this.data = new Array2D(width, height, () => new Color(0.0, 0.0, 0.0));
 	}
 
+	// Makes a 1x1 texture from a single color. Surprisingly useful for testing
+	// or just doing quick things.
 	public static fromColor(color: Color): Texture {
 		let texture = new Texture(1, 1);
 		texture.data.set(color, 0, 0);
 		return texture;
 	}
 
+	// Creates a texture from a real image already loaded.
 	public static fromImage(image: HTMLImageElement): Texture {
 		const canvas = document.createElement("canvas");
 		canvas.width = image.width;
@@ -37,6 +48,11 @@ export class Texture {
 		return texture;
 	}
 
+	// Creates a texture from an image loaded somewhere on the internet (or in 
+	// your assets). Just pass the URL and it will load it.
+	//
+	// While its being loaded... it will display completely black
+	// that way rendering is not interrupted.
 	public static fromURL(url: string): Texture {
 		const texture = new Texture(1, 1);
 		const img = new Image();
@@ -54,6 +70,7 @@ export class Texture {
 		return texture;
 	}
 
+	// Helper to get a 8 bit uint array
 	private toUint8Array(): Uint8Array {
 		const w = this.data.width;
 		const h = this.data.height;
@@ -71,6 +88,8 @@ export class Texture {
 		return buf;
 	}
 
+	// Actually sends the memory to the GPU, so
+	// it can use it way faster!
 	public buffer() {
 		const gl = getGL();
 		if (this._glTexture) {
@@ -92,12 +111,14 @@ export class Texture {
 		return this._glTexture !== null;
 	}
 
+	// Says "I want to use this texture now" on the graphics card.
 	public bind(unit: number = 0) {
 		const gl = getGL();
 		gl.activeTexture(gl.TEXTURE0 + unit);
 		gl.bindTexture(gl.TEXTURE_2D, this._glTexture);
 	}
 
+	// Cleanup.
 	public destroy() {
 		const gl = getGL();
 		if (this._glTexture) {

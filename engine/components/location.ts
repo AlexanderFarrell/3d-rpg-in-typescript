@@ -1,6 +1,13 @@
 import { mat4, quat, vec3 } from "gl-matrix";
 import { Component } from "../world/entity";
 
+// In 3D the most common way to represent orientation is through:
+//  - Position
+//  - Rotation
+//  - Scale
+//
+// We call these transforms. There's many more actually... but these
+// 3 get us very far. 
 export class Location extends Component {
 	public position: vec3;
 	public rotation: quat;

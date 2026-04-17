@@ -9,6 +9,7 @@ import { type Drawable } from "../visual/visual";
 import { Component } from "../world/entity";
 import { Location } from "./location";
 
+// A single picture which always faces the camera!
 export class Billboard extends Component implements Drawable {
 	private _texture: Texture;
 	private _material: Material | null = null;
@@ -43,6 +44,9 @@ export class Billboard extends Component implements Drawable {
 			this._texture.buffer();
 		}
 
+		// We could probably not use the same material for each 
+		// billboard. We are able to recycle the texture which is 
+		// good, but this could be improved.
 		this._material = new Material(shader,
 			new UniformMat4("u_camera", Engine.visual.camera.matrix),
 			new UniformTexture("u_texture", this._texture)

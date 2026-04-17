@@ -4,6 +4,8 @@ import { Component } from "../world/entity";
 import type { Updatable } from "../world/world";
 
 
+// Takes control of the camera, and let's us fly with 
+// WASD, GH (up and down), and QE (turn left and turn right)
 export class FlyCamera extends Component implements Updatable {
 	public movementSpeed = 4/60.0;
 	private _movement: vec3 = vec3.create();
