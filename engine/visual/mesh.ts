@@ -1,4 +1,3 @@
-
 export enum DataType {
 	Integer,
 	Float
@@ -98,5 +97,9 @@ export class Mesh {
 		gl.bindVertexArray(this.VAO);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._index_buffer);
 		gl.drawElements(gl.TRIANGLES, this.Indices.length / 3, gl.UNSIGNED_INT, 0);
+	}
+
+	public IsBuffered(): boolean {
+		return this._index_buffer != null;
 	}
 }

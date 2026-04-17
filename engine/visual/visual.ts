@@ -2,6 +2,8 @@ import { PerspectiveCamera, type Camera } from "./camera";
 import { Color } from "./color";
 
 export interface Drawable {
+	Setup(gl: WebGL2RenderingContext): void;
+	Breakdown(gl: WebGL2RenderingContext): void;
 	Draw(gl: WebGL2RenderingContext): void;
 }
 
@@ -11,7 +13,7 @@ export class Visual {
 	public ClearColor: Color;
 	public Camera: Camera;
 
-	public Drawables: Drawable[] = [];
+	private _drawables: Set<Drawable> = new Set();
 
 	public constructor() {
 		this.Canvas = document.querySelector("canvas")!;
@@ -58,8 +60,18 @@ export class Visual {
 		// This is where we actually clear the frame
 		this.GL.clear(this.GL.COLOR_BUFFER_BIT | this.GL.DEPTH_BUFFER_BIT);
 
-		this.Drawables.forEach(drawable => {
+		this._drawables.forEach(drawable => {
 			drawable.Draw(this.GL);
 		})
+	}
+
+	public Register(drawable: Drawable) {
+		this._drawables.add(drawable);
+		drawable.Setup(this.GL);
+	}
+
+	public Unregister(drawable: Drawable) {
+		drawable.Breakdown(this.GL);
+		this._drawables.delete(drawable);
 	}
 }

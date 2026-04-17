@@ -1,5 +1,6 @@
+import type { mat4 } from "gl-matrix";
 import type { Shader } from "./shader";
-
+import type { Texture } from "./texture";
 
 export class Material {
 	private _shader: Shader;
@@ -31,4 +32,31 @@ export abstract class Uniform {
 	}
 
 	abstract Bind(gl: WebGL2RenderingContext, shader: Shader): void;
+}
+
+export class UniformTexture extends Uniform {
+	public Texture: Texture;
+
+	public constructor(name: string, texture: Texture) {
+		super(name);
+		this.Texture = texture;
+	}
+
+	Bind(gl: WebGL2RenderingContext, shader: Shader): void {
+		this.Texture.Bind(gl);
+		gl.uniform1i(this.Location, 0);
+	}
+}
+
+export class UniformMat4 extends Uniform {
+	public Mat4: mat4;
+
+	public constructor(name: string, mat4: mat4) {
+		super(name);
+		this.Mat4 = mat4;
+	}
+
+	Bind(gl: WebGL2RenderingContext, shader: Shader): void {
+		gl.uniformMatrix4fv(this.Location, false, this.Mat4)
+	}
 }
