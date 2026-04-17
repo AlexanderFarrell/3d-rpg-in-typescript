@@ -48,6 +48,9 @@ export class Texture {
 				texture.buffer();
 			}
 		});
+		img.addEventListener('error', () => {
+			console.error(`Texture failed to load: ${url}`);
+		});
 		return texture;
 	}
 

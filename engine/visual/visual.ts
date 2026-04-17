@@ -28,6 +28,12 @@ export class Visual {
 
 		setGL(gl);
 
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.clearDepth(1.0);
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LEQUAL);
+
 		this.camera = new PerspectiveCamera(
 			gl.canvas.width / gl.canvas.height
 		);
@@ -55,11 +61,6 @@ export class Visual {
 			this.clearColor.blue,
 			this.clearColor.alpha
 		);
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.clearDepth(1.0);
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthFunc(gl.LEQUAL);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		this._drawables.forEach(drawable => {

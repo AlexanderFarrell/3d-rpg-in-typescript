@@ -40,8 +40,6 @@ export class Terrain extends Component implements Drawable {
 			new UniformVec3("u_light_direction", 1, 2, 1),
 			new UniformFloat("u_ambient", 0.3)
 		);
-
-		this.updateMesh();
 	}
 
 	breakdown(): void {}
