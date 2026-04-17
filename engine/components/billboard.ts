@@ -69,10 +69,10 @@ let mesh = new Mesh(
 		0, 1, 0
 	),
 	new VertexAttribute(2,
-		0, 0,
-		1, 0,
+		0, 1,
 		1, 1,
-		0, 1
+		1, 0,
+		0, 0
 	)
 );
 mesh.Indices = [0, 1, 2, 0, 2, 3];

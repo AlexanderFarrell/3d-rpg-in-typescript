@@ -17,15 +17,15 @@ export class FlyCamera extends Component implements Updatable {
 	}
 
 	OnUpdate(): void {
-		this._movement[0] = 
-			(Engine.Input.IsDown('d') ?  1.0 : 0.0) + // Strafe left
-			(Engine.Input.IsDown('a') ? -1.0 : 0.0);  // Strafe right;
-		this._movement[1] = 
+		this._movement[0] =
+			(Engine.Input.IsDown('d') ? -1.0 : 0.0) + // Strafe right
+			(Engine.Input.IsDown('a') ?  1.0 : 0.0);  // Strafe left
+		this._movement[1] =
 			(Engine.Input.IsDown('g') ?  1.0 : 0.0) + // Move Up
 			(Engine.Input.IsDown('h') ? -1.0 : 0.0);  // Move Down
-		this._movement[2] = 
-			(Engine.Input.IsDown('w') ? -1.0 : 0.0) + // Move Forward
-			(Engine.Input.IsDown('s') ?  1.0 : 0.0);  // Move Backward
+		this._movement[2] =
+			(Engine.Input.IsDown('w') ?  1.0 : 0.0) + // Move Forward
+			(Engine.Input.IsDown('s') ? -1.0 : 0.0);  // Move Backward
 
 		// Multiply by the speed we should go
 		vec3.scale(this._movement, this._movement, this.MovementSpeed);	

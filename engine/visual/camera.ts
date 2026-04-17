@@ -9,7 +9,7 @@ export abstract class Camera implements Drawable {
 	private _matrix: mat4;
 
 	private _target: vec3 = [0, 0, 0];
-	private _forward: vec3 = [0, 0, -1];
+	private _forward: vec3 = [0, 0, 1];
 	private _up: vec3 = [0, 1, 0];
 
 	protected constructor() {
@@ -33,7 +33,7 @@ export abstract class Camera implements Drawable {
 	private RefreshView() {
 		this._forward[0] = 0;
 		this._forward[1] = 0;
-		this._forward[2] = -1;
+		this._forward[2] = 1;
 
 		vec3.transformQuat(this._forward, this._forward, this.Location.Rotation);
 		vec3.add(this._target, this.Location.Position, this._forward);
