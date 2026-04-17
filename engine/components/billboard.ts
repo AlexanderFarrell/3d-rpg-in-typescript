@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, quat } from "gl-matrix";
 import { TexturedFragmentGLSL, TexturedVertexGLSL } from "../assets/asset_map";
 import { Engine } from "../main";
 import { Material, UniformMat4, UniformTexture } from "../visual/material";
@@ -8,7 +8,6 @@ import type { Texture } from "../visual/texture";
 import { type Drawable } from "../visual/visual";
 import { Component } from "../world/entity";
 import { Location } from "./location";
-import type { Updatable } from "../world/world";
 
 export class Billboard extends Component implements Drawable {
 	private _texture: Texture;
@@ -53,7 +52,14 @@ export class Billboard extends Component implements Drawable {
 	breakdown(): void {}
 
 	draw(): void {
-		this._location?.refresh();
+		// Rotate towards the camera
+		const cam = Engine.visual.camera.location.position;
+		const pos = this._location!.position;
+		const yaw = Math.atan2(cam[0] - pos[0], cam[2] - pos[2]);
+		quat.rotateY(this._location!.rotation, quat.create(), yaw);
+
+		// Actually draw
+		this._location!.refresh();
 		mat4.mul(this._mvpMatrix, Engine.visual.camera.matrix, this._location!.matrix);
 		(this._material!.uniforms[0] as UniformMat4).mat4 = this._mvpMatrix;
 		this._material!.bind();

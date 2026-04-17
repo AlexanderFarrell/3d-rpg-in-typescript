@@ -1,4 +1,4 @@
-import { vec3 } from "gl-matrix";
+import { quat, vec3 } from "gl-matrix";
 import { Engine } from "../main";
 import { Component } from "../world/entity";
 import type { Updatable } from "../world/world";
@@ -41,5 +41,17 @@ export class FlyCamera extends Component implements Updatable {
 			Engine.visual.camera.location.position,
 			this._movement
 		);
+
+		const rot = Engine.visual.camera.location.rotation;
+		const euler = quat.create();
+
+		if (Engine.input.isDown('q')) {
+			quat.fromEuler(euler, 0.0, 20.0 * this.movementSpeed, 0.0);
+			quat.mul(rot, rot, euler);
+		}
+		if (Engine.input.isDown('e')) {
+			quat.fromEuler(euler, 0.0, -20.0 * this.movementSpeed, 0.0);
+			quat.mul(rot, rot, euler);
+		}
 	}
 }

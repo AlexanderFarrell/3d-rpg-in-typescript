@@ -37,5 +37,7 @@ Engine.start(() => {
 			terrain.heightMap.set(Random.next(0.0, 1.2), x, y);
 		}
 	}
-	terrain.updateMesh()
+	terrain.updateMesh();
+
+	Engine.visual.camera.location.position = [32, 2, 10]
 });
