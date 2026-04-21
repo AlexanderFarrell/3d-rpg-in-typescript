@@ -37,7 +37,6 @@ export class UserInput {
 		})
 
 		document.body.addEventListener('mousemove', (event) => {
-			console.log(document.pointerLockElement)
 			if (this.wantsPointerLock && this.isPointerLocked) {
 				this.mouseDeltaX = event.movementX;
 				this.mouseDeltaY = event.movementY;

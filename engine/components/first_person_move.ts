@@ -6,11 +6,24 @@ import { Location } from "./location";
 
 
 export class FirstPersonMove extends Component implements Updatable {
+	// How fast the character can move per second
 	public movementSpeed = 4;
-	private _movement: vec3 = vec3.create();
+
+	// How many degrees to move per mouse pixel left and right
 	public yawSensitivity = 0.5;
+
+	// How many degrees to move per mouse pixel up and down
+	// I generally find pitch more sensitive to be nice.
 	public pitchSensitivity = 1.0;
+
+	// How quickly should the smoothing complete? 0.5 completes in 2
+	// frames. 0.25 in 4. The smaller this number is, the longer 
+	// it takes for the yaw or pitch to smooth out. This is necessary
+	// on browsers for smoothness, because browsers do integer deltas
+	// as of 2026.
 	public smoothRotation = 0.4;
+
+	private _movement: vec3 = vec3.create();
 	private _yaw: number = 180.0;
 	private _pitch: number = 0.0;
 	private _targetYaw: number = 180.0;
@@ -37,7 +50,7 @@ export class FirstPersonMove extends Component implements Updatable {
 			(Engine.input.isDown('a') ? -1.0 : 0.0);  // Strafe left
 		this._movement[1] = 0.0;
 		this._movement[2] =
-			(Engine.input.isDown('w') ? -1.0 : 0.0) + // Move Forward
+			(Engine.input.isDown('w') ? -1.0 : 0.0) + // Move forward
 			(Engine.input.isDown('s') ?  1.0 : 0.0);  // Move Backward
 
 		this._targetYaw -= Engine.input.mouseDeltaX * this.yawSensitivity;
