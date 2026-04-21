@@ -7,6 +7,7 @@ import {FlyCamera} from "engine/components/flycamera"
 import Tree from "./assets/tree.png";
 import {Random} from "engine/util/random";
 import {Terrain} from "engine/components/terrain";
+import {FirstPersonMove} from "engine/components/first_person_move"
 
 // This is where we start the engine. The engine 
 // takes a function which it will run once started. 
@@ -47,9 +48,14 @@ Engine.start(() => {
 
 	// Step 3. - Be able to move around in the world
 	// Make a "FlyCamera" which adds controls to the camera
+	// Engine.world.makeEntity(
+		// new FlyCamera()
+	// );
+
 	Engine.world.makeEntity(
-		new FlyCamera()
-	);
+		new Location([0, 3, 0]),
+		new FirstPersonMove()
+	)
 	// Place the camera in a nice starting position
-	Engine.visual.camera.location.position = [32, 2, 10]
+	Engine.visual.camera.location.position = [32, 3, 10]
 });
