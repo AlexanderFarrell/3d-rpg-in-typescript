@@ -20,14 +20,14 @@ export class FlyCamera extends Component implements Updatable {
 
 	onUpdate(): void {
 		this._movement[0] =
-			(Engine.input.isDown('d') ? -1.0 : 0.0) + // Strafe right
-			(Engine.input.isDown('a') ?  1.0 : 0.0);  // Strafe left
+			(Engine.input.isDown('d') ?  1.0 : 0.0) + // Strafe right
+			(Engine.input.isDown('a') ? -1.0 : 0.0);  // Strafe left
 		this._movement[1] =
 			(Engine.input.isDown('g') ?  1.0 : 0.0) + // Move Up
 			(Engine.input.isDown('h') ? -1.0 : 0.0);  // Move Down
 		this._movement[2] =
-			(Engine.input.isDown('w') ?  1.0 : 0.0) + // Move Forward
-			(Engine.input.isDown('s') ? -1.0 : 0.0);  // Move Backward
+			(Engine.input.isDown('w') ? -1.0 : 0.0) + // Move Forward
+			(Engine.input.isDown('s') ?  1.0 : 0.0);  // Move Backward
 
 		// Multiply by the speed we should go
 		vec3.scale(this._movement, this._movement, this.movementSpeed);
