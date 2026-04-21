@@ -61,7 +61,7 @@ export abstract class Camera implements Drawable {
 
 		// Rotates this vector depending on where the camera is facing.
 		vec3.transformQuat(this._forward, this._forward, this.location.rotation);
-
+        vec3.negate(this._forward, this._forward);  // lookAt expects -Z forward
 		// Moves this direction relative to where the camera is.
 		vec3.add(this._target, this.location.position, this._forward);
 

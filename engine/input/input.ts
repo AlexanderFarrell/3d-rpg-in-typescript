@@ -5,13 +5,16 @@ export class UserInput {
 	public mouseDeltaX = 0;
 	public mouseDeltaY = 0;
 
-	public isPointerLocked = false;
-	private allowedToLock = false;
+	// Called from the app if it wants to control the
+	// screen. We need to wait for the user to interact.
+	public wantsPointerLock = false;
 
-	private _canvas: HTMLCanvasElement;
+	// For security, browsers wait for the user to interact
+	// before allowing things like pointer lock or full screen
+	// This tracks if the pointer is actually locked.
+	private isPointerLocked = false;
 
 	constructor() {
-		this._canvas = document.querySelector("canvas")!;
 		document.body.addEventListener('keydown', (event) => {
 			this.keysDown.add(event.key);
 		})
@@ -20,22 +23,24 @@ export class UserInput {
 			this.keysDown.delete(event.key);
 		})
 
-		this._canvas.addEventListener('click', (event) => {
-			if (this.isPointerLocked || !this.allowedToLock) {
-				this._canvas.requestPointerLock();
+		document.body.addEventListener('click', (event) => {
+			if (this.wantsPointerLock && !this.isPointerLocked) {
+				document.body.requestPointerLock({
+					unadjustedMovement: true
+				});
 			}
 		})
 
 		document.addEventListener('pointerlockchange', () => {
-			this.allowedToLock = 
-				document.pointerLockElement === this._canvas;
+			this.isPointerLocked = 
+				document.pointerLockElement === document.body;
 		})
 
 		document.body.addEventListener('mousemove', (event) => {
-			if (this.allowedToLock) {
+			console.log(document.pointerLockElement)
+			if (this.wantsPointerLock && this.isPointerLocked) {
 				this.mouseDeltaX = event.movementX;
 				this.mouseDeltaY = event.movementY;
-				console.log(`Mouse Delta X: ${this.mouseDeltaX}, ${this.mouseDeltaY}`)
 			} else {
 				this.mouseDeltaX = 0;
 				this.mouseDeltaY = 0;
@@ -48,14 +53,19 @@ export class UserInput {
 	}
 
 	lockMouse() {
-		this.isPointerLocked = true;
+		this.wantsPointerLock = true;
 	}
 
 	unlockMouse() {
-		this.isPointerLocked = false;
+		this.wantsPointerLock = false;
 
-		if (this.allowedToLock) {
+		if (this.isPointerLocked) {
 			document.exitPointerLock()
 		}
+	}
+
+	endUpdate() {
+		this.mouseDeltaX = 0;
+		this.mouseDeltaY = 0;
 	}
 }
