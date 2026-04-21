@@ -5,6 +5,7 @@ import {Billboard} from "engine/components/billboard";
 import { Texture } from "engine/visual/texture";
 import {FlyCamera} from "engine/components/flycamera"
 import Tree from "./assets/tree.png";
+import Melon from "./assets/melon.png";
 import {Random} from "engine/util/random";
 import {Terrain} from "engine/components/terrain";
 import {FirstPersonMove} from "engine/components/first_person_move"
@@ -26,6 +27,18 @@ Engine.start(() => {
 		Engine.world.makeEntity(
 			location,
 			new Billboard(texture)
+		)
+	}
+
+	// Step 1.5 - Add lots of melon
+	let melonTexture = Texture.fromURL(Melon);
+	for (let i = 0; i < 40; i++) {
+		let location = new Location();
+		location.position = [Random.next(0, 64), 0.5, Random.next(0, 64)];
+
+		Engine.world.makeEntity(
+			location,
+			new Billboard(melonTexture)
 		)
 	}
 
