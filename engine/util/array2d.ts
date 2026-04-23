@@ -39,4 +39,8 @@ export class Array2D<T> {
 	public get height() {
 		return this._height;
 	}
+
+	public get_bilinear(x: number, y: number): number {
+		
+	}
 }
