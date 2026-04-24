@@ -9,16 +9,17 @@ They might be broken up into multiple videos, or merged with other topics.
 ### To Do:
 
 - Fundamentals
-	- Physics
-	- Map Editor 1
-	- Inventory
-	- Combat & Equipment
+	- [Physics](./tasks/03-physics.md)
+	- [Main Menu](./tasks/04-main-menu.md)
+	- [Map Editor 01](./tasks/04-map-editor-01.md)
+	- [Inventory](./tasks/06-inventory.md)
+	- [Combat & Equipment](./tasks/07-combat.md)
 	- Buildings
 	- NPCs
 	- Sound
 	- Music
 	- Save & Load Game
-	- Main Menu & Options
+	- Settings Menu
 - World Building
 	- Towns & Cities
         - Reputation
@@ -38,6 +39,10 @@ They might be broken up into multiple videos, or merged with other topics.
     - Pet System
     - Shapeshifting
     - Charisma
+    - Class Refinements
+        - Berserker
+        - Rogue
+        - 
 - Non-Combat
     - Gathering
         - Mining
@@ -64,9 +69,6 @@ They might be broken up into multiple videos, or merged with other topics.
     - Social
         - Barter
         - Speech
-13. Classes: Magician
-14. Classes: Berserker
-15. Classes: 
 
 ### Complete:
 
