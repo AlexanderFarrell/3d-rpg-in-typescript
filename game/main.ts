@@ -11,9 +11,10 @@ import {Terrain} from "engine/components/terrain";
 import {FirstPersonMove} from "engine/components/first_person_move"
 import {PhysicsBody} from "engine/physics/physical_obj"
 import { Array2D } from "engine/util/array2d";
+import { Color } from "engine/visual/color";
 
 // Fills a square Array2D using diamond-square fractal. Size must be 2^n + 1.
-function diamondSquare(map: Array2D<number>, roughness = 0.55, initialScale = 10.0) {
+function diamondSquare(map: Array2D<number>, roughness = 0.55, initialScale = 20.0) {
 	const size = map.width;
 	map.set(Random.next(0, initialScale), 0,        0       );
 	map.set(Random.next(0, initialScale), size - 1, 0       );
@@ -65,6 +66,22 @@ Engine.start(() => {
 	let terrain = terrainEntity.get(Terrain)!;
 	terrain.cellSize = 4.0;
 	diamondSquare(terrain.heightMap);
+
+	for (let y = 0; y < terrain.heightMap.height; y++) {
+		for (let x = 0; x < terrain.heightMap.width; x++) {
+			let height = terrain.heightMap.get(x, y)!;
+			if (height > 18.0) {
+				terrain.colorMap.set(new Color(0.9, 0.95, 1), x, y)
+			} 
+			else if (height > 8.0) {
+				terrain.colorMap.set(new Color(0.7, 0.5, 0.2), x, y);
+			}
+			else if (height < -10.0) {
+				terrain.colorMap.set(new Color(0.9, 0.9, 0.0), x, y);
+			}
+		}
+	}
+
 	terrain.updateMesh();
 
 	// Step 1. - Make tons of trees
@@ -109,7 +126,7 @@ Engine.start(() => {
 	// );
 
 	Engine.world.makeEntity(
-		new Location([10, 10, 10]),
+		new Location([10, 20, 10]),
 		new FirstPersonMove()
 	)
 	// Place the camera in a nice starting position

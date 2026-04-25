@@ -30,10 +30,13 @@ export class Terrain extends Component implements Drawable, IPhysical {
 	// we don't have to repeat ourselves.
 	private _normalMap: Array2D<vec3>;
 
+	public colorMap: Array2D<Color>;
+
 	public constructor(width: number, height: number) {
 		super();
 		this.heightMap = new Array2D(width, height, () => 1);
 		this._normalMap = new Array2D(width, height, () => [0, 1, 0] as vec3);
+		this.colorMap = new Array2D(width, height, () => new Color(0.3, 0.8, 0.4))
 	}
 
 	onStart(): void {
@@ -128,8 +131,6 @@ export class Terrain extends Component implements Drawable, IPhysical {
 			array[offset + 2] = value[2];
 		}
 
-		let color = new Color(0.3, 0.8, 0.4);
-
 		// You'll find in this code that we do (+ 0) multiple times...
 		// ...isn't this a waste?
 		//
@@ -181,10 +182,10 @@ export class Terrain extends Component implements Drawable, IPhysical {
 				setXYZArray(normals!.data, vertexOffset + 9, this._normalMap.get(x + 1, y + 1)!);
 
 				// Colors
-				setXYZArray(colors!.data, vertexOffset + 0, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 3, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 6, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 9, color.vec3);
+				setXYZArray(colors!.data, vertexOffset + 0, this.colorMap.get(x + 0, y + 0)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 3, this.colorMap.get(x + 1, y + 0)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 6, this.colorMap.get(x + 0, y + 1)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 9, this.colorMap.get(x + 1, y + 1)!.vec3);
 
 				// Indices — split matches Rapier heightfield tessellation (0→3 diagonal)
 				indices[indexOffset + 0] = vertexOffset/3 + 0;
