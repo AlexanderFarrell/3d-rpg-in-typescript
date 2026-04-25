@@ -9,6 +9,7 @@ import Melon from "./assets/melon.png";
 import {Random} from "engine/util/random";
 import {Terrain} from "engine/components/terrain";
 import {FirstPersonMove} from "engine/components/first_person_move"
+import {PhysicsBody} from "engine/physics/physical_obj"
 
 // This is where we start the engine. The engine 
 // takes a function which it will run once started. 
@@ -26,7 +27,8 @@ Engine.start(() => {
 		// Create that tree
 		Engine.world.makeEntity(
 			location,
-			new Billboard(texture)
+			new Billboard(texture),
+			new PhysicsBody({ kind: 'cylinder', halfHeight: 2.5, radius: 0.8 }, 'static')
 		)
 	}
 
@@ -53,7 +55,7 @@ Engine.start(() => {
 	terrain.cellSize = 4.0;
 	for (let y = 0; y < terrain.heightMap.height; y++) {
 		for (let x = 0; x < terrain.heightMap.width; x++) {
-			terrain.heightMap.set(Random.next(0.0, 1.2), x, y);
+			terrain.heightMap.set(Random.next(0.0, 10.2), x, y);
 		}
 	}
 	terrain.updateMesh();
@@ -66,7 +68,7 @@ Engine.start(() => {
 	// );
 
 	Engine.world.makeEntity(
-		new Location([0, 3, 0]),
+		new Location([10, 10, 10]),
 		new FirstPersonMove()
 	)
 	// Place the camera in a nice starting position

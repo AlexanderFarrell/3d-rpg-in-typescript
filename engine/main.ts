@@ -1,4 +1,5 @@
 import { UserInput } from "./input/input";
+import { PhysicsWorld } from "./physics/physics_world";
 import { Time } from "./time/time";
 import { Visual } from "./visual/visual";
 import { World } from "./world/world";
@@ -10,14 +11,17 @@ export class Engine {
 	public static world: World;
 	public static input: UserInput;
 	public static time: Time;
+	public static physics: PhysicsWorld;
 
 	// Called to start the game engine, taking a
 	// function once set up.
-	public static start(onSetup: () => void) {
+	public static async start(onSetup: () => void) {
+		await PhysicsWorld.init();
 		Engine.visual = new Visual();
 		Engine.world = new World();
 		Engine.input = new UserInput();
 		Engine.time = new Time();
+		Engine.physics = new PhysicsWorld();
 		onSetup();
 		Engine.loop();
 	}
@@ -38,6 +42,7 @@ export class Engine {
 
 	// Updates the logic and movement in the game.
 	private static update() {
+		Engine.physics.update(Engine.time);
 		Engine.world.update();
 	}
 

@@ -70,6 +70,13 @@ export class Entity {
 		return this._components.get(kind) as T;
 	}
 
+	getOrAdd<T extends Component>(kind: ComponentConstructor<T>, factory: () => T): T {
+		if (!this.has(kind)) {
+			this.add(factory())
+		}
+		return this.get(kind)!
+	}
+
 	// Removes all components, calling each onEnd() function
 	clear(): void {
 		this._components.forEach(component => {

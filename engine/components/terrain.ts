@@ -8,10 +8,12 @@ import { Color } from "../visual/color";
 import { Shader, ShaderSource, ShaderType } from "../visual/shader";
 import { ColorLitFragmentGLSL, ColorLitVertexGLSL } from "../assets/asset_map";
 import { Engine } from "../main";
+import type { IPhysical } from "../physics/physics_world";
+import RAPIER, { ColliderDesc } from "@dimforge/rapier3d-compat";
 
 // Represents a landscape, and builds a geometry of triangles 
 // into a landscape
-export class Terrain extends Component implements Drawable {
+export class Terrain extends Component implements Drawable, IPhysical {
 	// A 2D grid of how high the terrain is at each point.
 	public heightMap: Array2D<number>;
 
@@ -21,6 +23,7 @@ export class Terrain extends Component implements Drawable {
 	// The geometry if made
 	private _mesh: Mesh | null = null;
 	private _material: Material | null = null;
+	private _colliderHandle: RAPIER.ColliderHandle | null = null;
 
 	// This is for storage later, by storing normals during the mesh
 	// creation, we actually speed up calculating normals by 4x, because
@@ -39,6 +42,7 @@ export class Terrain extends Component implements Drawable {
 
 	onEnd(): void {
 		Engine.visual.unregister(this);
+		Engine.physics.unregister(this);
 	}
 
 	setup(): void {
@@ -177,13 +181,13 @@ export class Terrain extends Component implements Drawable {
 				setXYZArray(colors!.data, vertexOffset + 6, color.vec3);
 				setXYZArray(colors!.data, vertexOffset + 9, color.vec3);
 
-				// Indices
+				// Indices — split matches Rapier heightfield tessellation (0→3 diagonal)
 				indices[indexOffset + 0] = vertexOffset/3 + 0;
 				indices[indexOffset + 1] = vertexOffset/3 + 1;
-				indices[indexOffset + 2] = vertexOffset/3 + 2;
-				indices[indexOffset + 3] = vertexOffset/3 + 1;
-				indices[indexOffset + 4] = vertexOffset/3 + 2;
-				indices[indexOffset + 5] = vertexOffset/3 + 3;
+				indices[indexOffset + 2] = vertexOffset/3 + 3;
+				indices[indexOffset + 3] = vertexOffset/3 + 0;
+				indices[indexOffset + 4] = vertexOffset/3 + 3;
+				indices[indexOffset + 5] = vertexOffset/3 + 2;
 
 				vertexOffset += 12;
 				indexOffset += 6;
@@ -191,6 +195,60 @@ export class Terrain extends Component implements Drawable {
 		}
 
 		this._mesh!.buffer();
+		if (this._colliderHandle !== null) {
+			this.deinitPhysics(Engine.physics.world);
+		}
+		this.initPhysics(Engine.physics.world)
+	}
+
+	get isStatic(): boolean {
+		return true;
+	}
+
+	get rapierHandle(): number | null {
+		return null;
+	}
+
+	syncTransform(world: RAPIER.World): void {
+		
+	}
+
+	initPhysics(world: RAPIER.World): void {
+		const w = this.heightMap.width;
+		const h = this.heightMap.height;
+		// Rapier heightfield(nrows, ncols, heights, scale):
+		//   nrows = cells along X, ncols = cells along Z
+		//   heights[row * (ncols+1) + col] where row=X, col=Z
+		const heights = new Float32Array(w * h);
+		for (let x = 0; x < w; x++) {
+			for (let z = 0; z < h; z++) {
+				heights[x * h + z] = this.heightMap.get(x, z)!
+			}
+		}
+		const scale = {
+			x: (w - 1) * this.cellSize,
+			y: 1,
+			z: (h - 1) * this.cellSize,
+		};
+		const colliderDesc = RAPIER.ColliderDesc.heightfield(w - 1, h - 1, heights, scale);
+
+		// Our terrain starts at 0,0,0, but rapier's height field
+		// starts in the middle. Adjust this
+		colliderDesc.setTranslation(
+			((w - 1) * this.cellSize) / 2,
+			0,
+			((h - 1) * this.cellSize) / 2
+		);
+
+		const collider = world.createCollider(colliderDesc);
+		this._colliderHandle = collider.handle;
+	}
+
+	deinitPhysics(world: RAPIER.World): void {
+		if (this._colliderHandle == null) return;
+		const collider = world.getCollider(this._colliderHandle);
+		if (collider) world.removeCollider(collider, false);
+		this._colliderHandle = null;
 	}
 }
 
