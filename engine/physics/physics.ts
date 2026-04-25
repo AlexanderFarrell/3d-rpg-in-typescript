@@ -1,5 +1,5 @@
 import { vec3 } from "gl-matrix";
-import type { Location } from "../components/location";
+import { Location } from "../components/location";
 import type { Array2D } from "../util/array2d";
 import { Component } from "../world/entity";
 
@@ -33,8 +33,12 @@ export class PhysicalObj extends Component {
 	}
 
 	onStart(): void {
-		if (!this.entity!.has())
-		this.location = this.entity!.get
+		// Physical object needs a location so that 
+		// it knows where the object is.
+		if (!this.entity!.has(Location)) {
+			this.entity!.add(new Location());
+		}
+		this.location = this.entity!.get(Location)!;
 	}
 }
 
@@ -77,17 +81,49 @@ function DoesCylinderIntersectCylinder(
 	bLoc: Location
 ) {
 	//Ensure the heights are within range
-	let aHighY = a.height/2 + aLoc.position[1];
-	let bHighY = b.height/2 + bLoc.position[1];
-	let aLowY = aHighY + a.height/2;
-	let bLowY = bHighY + b.height/2;
-	if (aLoc.position[1] > bHighY ||
-		aLoc.position[1] < bLowY ||
-		bLoc.position[1] > aHighY ||
-		bLoc.position[1] < aLowY
-	) {
-		
-	} 
+	const aMinY = aLoc.Y - a.height / 2;
+    const aMaxY = aLoc.Y + a.height / 2;
+    const bMinY = bLoc.Y - b.height / 2;
+    const bMaxY = bLoc.Y + b.height / 2;
+	
+	// No vertical overlap → no collision
+    if (aMaxY < bMinY || bMaxY < aMinY) return false;
 
-	return false;
+	// Since Y overlaps, check if X and Z overlap
+	// and if they do, we are colliding.
+	const distanceX = aLoc.X - bLoc.X;
+	const distanceZ = aLoc.Z - bLoc.Z;
+
+	// Distance formula is essentially the pythagorean theorum:
+	// a^2 + b^2 = c^2
+	// In this case, X is a, and Z is b. We just find C
+	// ...except finding sqrt is expensive... so I have a trick
+	// up my sleeve.
+	const distanceSquared = distanceX * distanceX + distanceZ + distanceZ;
+
+	const radiusSum = a.radius + b.radius;
+
+	// This... we can just square the radius (instead of getting
+	// sqrt() of the distance). Faster.
+	return distanceSquared < radiusSum * radiusSum;
+}
+
+
+let distanceVec3 = vec3.create();
+
+function DoesSphereIntersectCylinder(
+	sphere: Sphere,
+	cylinder: Cylinder,
+	sphereLoc: Location,
+	cylinderLoc: Location,
+) {
+	// Cylindrical coords:
+	const distanceX = sphereLoc.X - cylinderLoc.X;
+	const distanceZ = sphereLoc.Z - cylinderLoc.Z;
+	const radialDistance = Math.sqrt(
+		distanceX * distanceX +
+		distanceZ * distanceZ
+	);
+
+	// 
 }

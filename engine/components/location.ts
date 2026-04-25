@@ -35,4 +35,16 @@ export class Location extends Component {
 		mat4.identity(this._matrix);
 		mat4.fromRotationTranslationScale(this._matrix, this.rotation, this.position, this.scale);
 	}
+
+	public get X() {
+		return this.position[0];
+	}
+
+	public get Y() {
+		return this.position[1];
+	}
+
+	public get Z() {
+		return this.position[2];
+	}
 }

@@ -6,7 +6,8 @@
 	"main": "./main.ts",
 	"types": "./main.ts",
 	"dependencies": {
-		"gl-matrix": "3.4.4"
+		"gl-matrix": "3.4.4",
+		"@dimforge/rapier3d-compat": "^0.19.3"
 	},
 	"devDependencies": {
 		"typescript": "^6.0.3"
