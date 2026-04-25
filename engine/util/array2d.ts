@@ -41,6 +41,24 @@ export class Array2D<T> {
 	}
 
 	public get_bilinear(x: number, y: number): number {
-		
+		const x0 = Math.floor(x);
+		const y0 = Math.floor(y);
+		const x1 = x0 + 1;
+		const y1 = y0 + 1;
+		const amoX = x - x0;
+		const amoY = y - y0;
+
+		const x0y0 = (this.get(x0, y0) as number) ?? 0;
+		const x1y0 = (this.get(x1, y0) as number) ?? 0;
+		const x0y1 = (this.get(x0, y1) as number) ?? 0;
+		const x1y1 = (this.get(x1, y1) as number) ?? 0;
+
+		const xLow = lerp(x0y0, x0y1, amoY);
+		const xHigh = lerp(x1y0, x1y1, amoY);
+		return lerp(xLow, xHigh, amoX);
 	}
+}
+
+function lerp(a: number, b: number, amo: number) {
+	return ((b - a) * amo) + a;
 }

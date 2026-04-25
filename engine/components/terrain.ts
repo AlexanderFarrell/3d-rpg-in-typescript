@@ -95,10 +95,15 @@ export class Terrain extends Component implements Drawable, IPhysical {
 			let counts = 3 * 4 * (this.heightMap.width - 1) * (this.heightMap.height - 1);
 
 			this._mesh = new Mesh(
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0)), // Positions
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0)), // Normals
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0))  // Colors
+				new VertexAttribute(3), // Positions
+				new VertexAttribute(3), // Normals
+				new VertexAttribute(3)  // Colors
 			);
+			for (let i = 0; i < counts; i++) {
+				this._mesh.vertexAttrs[0]?.data.push(0)
+				this._mesh.vertexAttrs[1]?.data.push(0)
+				this._mesh.vertexAttrs[2]?.data.push(0)
+			}
 			this._mesh.indices = new Array<number>(6 * (this.heightMap.width - 1) * (this.heightMap.height - 1)).fill(0);
 		}
 
@@ -249,6 +254,33 @@ export class Terrain extends Component implements Drawable, IPhysical {
 		const collider = world.getCollider(this._colliderHandle);
 		if (collider) world.removeCollider(collider, false);
 		this._colliderHandle = null;
+	}
+
+	getHeightAt(worldX: number, worldZ: number): number | null {
+		const cellX = worldX / this.cellSize;
+		const cellZ = worldZ / this.cellSize;
+
+		const x0 = Math.floor(cellX);
+		const z0 = Math.floor(cellZ);
+		const x1 = x0 + 1;
+		const z1 = z0 + 1;
+
+		if (x0 < 0 || z0 < 0 || x1 >= this.heightMap.width || z1 >= this.heightMap.height) {
+			return null;
+		}
+
+		const tx = cellX - x0;
+		const tz = cellZ - z0;
+
+		const h00 = this.heightMap.get(x0, z0)!;
+		const h10 = this.heightMap.get(x1, z0)!;
+		const h01 = this.heightMap.get(x0, z1)!;
+		const h11 = this.heightMap.get(x1, z1)!;
+
+		return h00 * (1 - tx) * (1 - tz)
+			+ h10 * tx * (1 - tz)
+			+ h01 * (1 - tx) * tz
+			+ h11 * tx * tz;
 	}
 }
 

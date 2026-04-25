@@ -25,9 +25,7 @@ export class UserInput {
 
 		document.body.addEventListener('click', (event) => {
 			if (this.wantsPointerLock && !this.isPointerLocked) {
-				document.body.requestPointerLock({
-					unadjustedMovement: true
-				});
+				document.body.requestPointerLock();
 			}
 		})
 

@@ -36,7 +36,7 @@ export class FirstPersonMove extends Component implements Updatable {
 	public maxFallSpeed: number = -20.0;
 
 	// Max angle (degrees) of a slope the player can walk up
-	public maxSlopeClimbAngle: number = 60.0;
+	public maxSlopeClimbAngle: number = 50.0;
 
 	// Angle (degrees) at which steep slopes start sliding the player down
 	public minSlopeSlideAngle: number = 50.0;
