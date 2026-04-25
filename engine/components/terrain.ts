@@ -8,14 +8,17 @@ import { Color } from "../visual/color";
 import { Shader, ShaderSource, ShaderType } from "../visual/shader";
 import { ColorLitFragmentGLSL, ColorLitVertexGLSL } from "../assets/asset_map";
 import { Engine } from "../main";
-import type { IPhysical } from "../physics/physics_world";
-import RAPIER, { ColliderDesc } from "@dimforge/rapier3d-compat";
+import type { IPhysical } from "../physics/physics";
+import RAPIER from "@dimforge/rapier3d-compat";
 
 // Represents a landscape, and builds a geometry of triangles 
 // into a landscape
 export class Terrain extends Component implements Drawable, IPhysical {
 	// A 2D grid of how high the terrain is at each point.
 	public heightMap: Array2D<number>;
+
+	// The colors to paint the terrain
+	public colorMap: Array2D<Color>;
 
 	// How big is each cell in the grid? 
 	public cellSize: number = 1;
@@ -30,7 +33,6 @@ export class Terrain extends Component implements Drawable, IPhysical {
 	// we don't have to repeat ourselves.
 	private _normalMap: Array2D<vec3>;
 
-	public colorMap: Array2D<Color>;
 
 	public constructor(width: number, height: number) {
 		super();
@@ -222,9 +224,7 @@ export class Terrain extends Component implements Drawable, IPhysical {
 	initPhysics(world: RAPIER.World): void {
 		const w = this.heightMap.width;
 		const h = this.heightMap.height;
-		// Rapier heightfield(nrows, ncols, heights, scale):
-		//   nrows = cells along X, ncols = cells along Z
-		//   heights[row * (ncols+1) + col] where row=X, col=Z
+		
 		const heights = new Float32Array(w * h);
 		for (let x = 0; x < w; x++) {
 			for (let z = 0; z < h; z++) {
@@ -270,19 +270,22 @@ export class Terrain extends Component implements Drawable, IPhysical {
 			return null;
 		}
 
-		const tx = cellX - x0;
-		const tz = cellZ - z0;
+		const xAmount = cellX - x0;
+		const zAmount = cellZ - z0;
 
-		const h00 = this.heightMap.get(x0, z0)!;
-		const h10 = this.heightMap.get(x1, z0)!;
-		const h01 = this.heightMap.get(x0, z1)!;
-		const h11 = this.heightMap.get(x1, z1)!;
+		const x0z0 = this.heightMap.get(x0, z0)!;
+		const x1z0 = this.heightMap.get(x1, z0)!;
+		const x0z1 = this.heightMap.get(x0, z1)!;
+		const x1z1 = this.heightMap.get(x1, z1)!;
 
-		return h00 * (1 - tx) * (1 - tz)
-			+ h10 * tx * (1 - tz)
-			+ h01 * (1 - tx) * tz
-			+ h11 * tx * tz;
+		const xLow = lerp(x0z0, x0z1, zAmount);
+		const xHigh = lerp(x1z0, x1z1, zAmount);
+		return lerp(xLow, xHigh, xAmount);
 	}
+}
+
+function lerp(a: number, b: number, amount: number) {
+	return (b - a) * amount + a;
 }
 
 const terrainShader = new Shader(

@@ -1,5 +1,5 @@
 import { UserInput } from "./input/input";
-import { PhysicsWorld } from "./physics/physics_world";
+import { PhysicsWorld } from "./physics/physics";
 import { Time } from "./time/time";
 import { Visual } from "./visual/visual";
 import { World } from "./world/world";
@@ -42,8 +42,8 @@ export class Engine {
 
 	// Updates the logic and movement in the game.
 	private static update() {
-		Engine.physics.update(Engine.time);
 		Engine.world.update();
+		Engine.physics.update(Engine.time);
 	}
 
 	// Draws a frame

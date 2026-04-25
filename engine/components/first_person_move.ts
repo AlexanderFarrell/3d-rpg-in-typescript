@@ -3,7 +3,7 @@ import { Component } from "../world/entity";
 import type { Updatable } from "../world/world";
 import { Engine } from "../main";
 import { Location } from "./location";
-import { PhysicsBody } from "../physics/physical_obj";
+import { PhysicsBody } from "./physics_body";
 import RAPIER from "@dimforge/rapier3d-compat";
 
 
@@ -66,7 +66,7 @@ export class FirstPersonMove extends Component implements Updatable {
 		this._controller = Engine.physics.world.createCharacterController(0.05);
 		this._controller.setSlideEnabled(true);
 		this._controller.setMaxSlopeClimbAngle(this.maxSlopeClimbAngle * Math.PI / 180);
-		this._controller.setMinSlopeSlideAngle(this.maxSlopeClimbAngle * Math.PI / 180);
+		this._controller.setMinSlopeSlideAngle(this.minSlopeSlideAngle * Math.PI / 180);
 		this._controller.setUp({ x: 0, y: 1, z: 0 });
 		this._controller.setApplyImpulsesToDynamicBodies(false);
 
@@ -114,22 +114,25 @@ export class FirstPersonMove extends Component implements Updatable {
 		const collider = Engine.physics.getColliderForBody(this._physicsBody!.rapierHandle!)!;
 		const ownHandle = collider.handle;
 
-		// Do a first pass with just vertical movement so the controller
-		// can tell us if we're grounded this frame.
-		const verticalProbe = { x: 0, y: this._verticalVelocity * Engine.time.Delta - 0.01, z: 0 };
-		this._controller!.computeColliderMovement(collider, verticalProbe, undefined, undefined, (c) => c.handle !== ownHandle);
+		// Figure out where the player will be next frame, according to gravity, with some padding
+		// and then check if the ground is there. 
+		const verticalCheck = { x: 0, y: this._verticalVelocity * Engine.time.Delta - 0.01, z: 0 };
+		this._controller!.computeColliderMovement(collider, verticalCheck, undefined, undefined, (c) => c.handle !== ownHandle);
 		const grounded = this._controller!.computedGrounded();
 
 		if (grounded) {
 			this._verticalVelocity = 0;
-			if (Engine.input.isDown(' ') && this.hasHeadroomToJump()) {
+			// Check if space is down, and jump if so.
+			if (Engine.input.isDown(' ')) {
 				this._verticalVelocity = this.jumpStrength;
 			}
 		} else {
+			// Otherwise, if we are in the air, fall
 			this._verticalVelocity += Engine.physics.gravity[1] * Engine.time.Delta;
 			this._verticalVelocity = Math.max(this._verticalVelocity, this.maxFallSpeed);
 		}
 
+		// Where are we going? We will give this to Rapier3D to see if its a valid position
 		const desiredMovement = {
 			x: this._movement[0],
 			y: this._verticalVelocity * Engine.time.Delta,
@@ -138,6 +141,10 @@ export class FirstPersonMove extends Component implements Updatable {
 		this._controller!.computeColliderMovement(collider, desiredMovement, undefined, undefined, (c) => c.handle !== ownHandle);
 
 		const corrected = this._controller!.computedMovement();
+
+		// Kinematic means that we set the position and then Rapier3D validates it, instead of
+		// working with velocities directly. This is closer to NPC/character physics, rather than
+		// full on physics simulation.
 		this._physicsBody!.setNextKinematicTranslation([
 			pos[0] + corrected.x,
 			pos[1] + corrected.y,
@@ -153,15 +160,5 @@ export class FirstPersonMove extends Component implements Updatable {
 
 		quat.fromEuler(this._location!.rotation, this._pitch, this._yaw, 0.0);
 		quat.fromEuler(Engine.visual.camera.location.rotation, this._pitch, this._yaw, 0.0);
-	}
-
-	private hasHeadroomToJump(): boolean {
-		const pos = { x: this._location!.X, y: this._location!.Y, z: this._location!.Z };
-		const ownCollider = Engine.physics.getColliderForBody(this._physicsBody!.rapierHandle!);
-		const filter = (c: RAPIER.Collider) => c.handle !== ownCollider?.handle;
-
-		const upRay = new RAPIER.Ray(pos, { x: 0, y: 1, z: 0 });
-		// Need at least capsule halfHeight(1) + radius(0.3) + a little clearance
-		return Engine.physics.world.castRay(upRay, 1.5, true, undefined, undefined, undefined, undefined, filter) === null;
 	}
 }
