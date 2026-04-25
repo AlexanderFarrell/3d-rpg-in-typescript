@@ -1,30 +1,30 @@
-import Rapier from "@dimforge/rapier3d-compat";
+import RAPIER from "@dimforge/rapier3d-compat";
 import type { vec3 } from "gl-matrix";
 import type { Time } from "../time/time";
 
 export type PhysicsType = 'dynamic' | 'static' | 'kinematicPosition';
 
 export interface IPhysical {
-	initPhysics(world: Rapier.World): void,
-	deinitPhysics(world: Rapier.World): void,
-	syncTransform(world: Rapier.World): void,
+	initPhysics(world: RAPIER.World): void,
+	deinitPhysics(world: RAPIER.World): void,
+	syncTransform(world: RAPIER.World): void,
 	get isStatic(): boolean,
-	get rapierHandle(): Rapier.RigidBodyHandle | null,
+	get rapierHandle(): RAPIER.RigidBodyHandle | null,
 }
 
 export class PhysicsWorld {
-	private _world: Rapier.World;
+	private _world: RAPIER.World;
 	private _bodies: Map<number, IPhysical> = new Map();
 	private _dynamicBodies: Map<number, IPhysical> = new Map();
 	public gravity: vec3;
 
 	public static async init(): Promise<void> {
-		await Rapier.init();
+		await RAPIER.init();
 	}
 
 	// Get gravity, default to earth's gravity if not specified.
 	public constructor(gravity: vec3 = [0, -9.81, 0]) {
-		this._world = new Rapier.World({
+		this._world = new RAPIER.World({
 			x: gravity[0],
 			y: gravity[1],
 			z: gravity[2]
@@ -61,17 +61,17 @@ export class PhysicsWorld {
 		obj.deinitPhysics(this._world);
 	}
 
-	public getRigidBody(handle: Rapier.RigidBodyHandle): Rapier.RigidBody | undefined {
+	public getRigidBody(handle: RAPIER.RigidBodyHandle): RAPIER.RigidBody | undefined {
 		return this._world.getRigidBody(handle);
 	}
 
-	public getColliderForBody(handle: Rapier.RigidBodyHandle): Rapier.Collider | undefined {
+	public getColliderForBody(handle: RAPIER.RigidBodyHandle): RAPIER.Collider | undefined {
 		const rb = this.world.getRigidBody(handle);
 		if (!rb || rb.numColliders() === 0) return undefined;
 		return rb.collider(0);
 	}
 
-	public get world(): Rapier.World {
+	public get world(): RAPIER.World {
 		return this._world;
 	}
 }

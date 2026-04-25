@@ -1,4 +1,4 @@
-import Rapier from '@dimforge/rapier3d-compat'
+import RAPIER from '@dimforge/rapier3d-compat'
 import { Component } from '../world/entity'
 import { Location } from './location'
 import { Engine } from '../main'
@@ -9,7 +9,7 @@ import type { vec3 } from 'gl-matrix'
 export class PhysicsBody extends Component implements IPhysical {
 	public readonly shape: PhysicsShape;
 	public readonly bodyType: PhysicsType;
-	private _rapierHandle: Rapier.RigidBodyHandle | null = null;
+	private _rapierHandle: RAPIER.RigidBodyHandle | null = null;
 	private _location: Location | null = null;
 
 	public constructor(shape: PhysicsShape, bodyType: PhysicsType = 'dynamic') {
@@ -29,17 +29,17 @@ export class PhysicsBody extends Component implements IPhysical {
 		Engine.physics.unregister(this);		
 	}
 
-	public initPhysics(world: Rapier.World) {
-		let rigidbodyDesc: Rapier.RigidBodyDesc;
+	public initPhysics(world: RAPIER.World) {
+		let rigidbodyDesc: RAPIER.RigidBodyDesc;
 		switch (this.bodyType) {
 			case 'dynamic':
-				rigidbodyDesc = Rapier.RigidBodyDesc.dynamic();
+				rigidbodyDesc = RAPIER.RigidBodyDesc.dynamic();
 				break;
 			case 'static':
-				rigidbodyDesc = Rapier.RigidBodyDesc.fixed();
+				rigidbodyDesc = RAPIER.RigidBodyDesc.fixed();
 				break;
 			case 'kinematicPosition':
-				rigidbodyDesc = Rapier.RigidBodyDesc.kinematicPositionBased()
+				rigidbodyDesc = RAPIER.RigidBodyDesc.kinematicPositionBased()
 				break;
 			default:
 				throw new Error("Unknown body type: " + this.bodyType)
@@ -55,7 +55,7 @@ export class PhysicsBody extends Component implements IPhysical {
 		this._rapierHandle = rigidbody.handle;
 	}
 
-	public deinitPhysics(world: Rapier.World) {
+	public deinitPhysics(world: RAPIER.World) {
 		if (this._rapierHandle == null) return;
 		const rigidbody = world.getRigidBody(this._rapierHandle);
 		if (rigidbody) {
@@ -64,7 +64,7 @@ export class PhysicsBody extends Component implements IPhysical {
 		this._rapierHandle = null;
 	}
 
-	public syncTransform(world: Rapier.World) {
+	public syncTransform(world: RAPIER.World) {
 		const rigidbody = world.getRigidBody(this._rapierHandle!);
 		if (!rigidbody) return;
 		const translation = rigidbody.translation();
@@ -93,7 +93,7 @@ export class PhysicsBody extends Component implements IPhysical {
 		return this.bodyType === 'static'
 	}
 
-	public get rapierHandle(): Rapier.RigidBodyHandle | null {
+	public get rapierHandle(): RAPIER.RigidBodyHandle | null {
 		return this._rapierHandle
 	}
 }
@@ -127,16 +127,16 @@ export type PhysicsShape = SphereShape | CylinderShape | BoxShape | CapsuleShape
 // Our interfaces allow for serialization of these shapes later,
 // but we can then take this and convert to Rapier types so that
 // the physics engine can use them.
-export function shapeToColliderDesc(shape: PhysicsShape): Rapier.ColliderDesc {
+export function shapeToColliderDesc(shape: PhysicsShape): RAPIER.ColliderDesc {
 	switch (shape.kind) {
 		case 'sphere': 
-			return Rapier.ColliderDesc.ball(shape.radius);
+			return RAPIER.ColliderDesc.ball(shape.radius);
 		case 'cylinder':
-			return Rapier.ColliderDesc.cylinder(shape.halfHeight, shape.radius)
+			return RAPIER.ColliderDesc.cylinder(shape.halfHeight, shape.radius)
 		case 'box':
-			return Rapier.ColliderDesc.cuboid(shape.halfWidth, shape.halfHeight, shape.halfDepth)
+			return RAPIER.ColliderDesc.cuboid(shape.halfWidth, shape.halfHeight, shape.halfDepth)
 		case 'capsule':
-			return Rapier.ColliderDesc.capsule(shape.halfHeight, shape.radius)
+			return RAPIER.ColliderDesc.capsule(shape.halfHeight, shape.radius)
 		default:
 			throw new Error("Unsupported shape, cannot get collider desc")
 	}
