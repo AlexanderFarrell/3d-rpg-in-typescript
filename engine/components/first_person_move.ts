@@ -119,18 +119,12 @@ export class FirstPersonMove extends Component implements Updatable {
 			euler
 		);
 		vec3.scale(this._movement, this._movement, this.movementSpeed * Engine.time.Delta);
-		vec3.add(
-			this._location!.position,
-			this._location!.position,
-			this._movement
-		);
-
 
 		const pos = this._location!.position;
 		const collider = Engine.physics.getColliderForBody(this._physicsBody!.rigidbodyHandle)!;
 
 		// Figure out if we are on the ground. Cast a ray to where we will be next
-		// frame below us, with some padding. 
+		// frame below us, with some padding.
 		const verticalCheck = {x: 0, y: this._verticalSpeed * Engine.time.Delta - 0.01, z: 0};
 		this._controller!.computeColliderMovement(collider, verticalCheck, undefined, undefined, (c) => c.handle !== collider.handle);
 		const grounded = this._controller!.computedGrounded();
@@ -158,27 +152,27 @@ export class FirstPersonMove extends Component implements Updatable {
 			z: this._movement[2],
 		};
 
-		// Give the movement to the physics engine. So if we run into 
-		// something, the physics engine will move it, and we can 
+		// Give the movement to the physics engine. So if we run into
+		// something, the physics engine will move it, and we can
 		// get the corrected movement.
-		this._controller!.computeColliderMovement(collider, desiredMovement, 
+		this._controller!.computeColliderMovement(collider, desiredMovement,
 			undefined, undefined, (c) => c.handle !== collider.handle
 		);
-		
+
 		const corrected = this._controller!.computedMovement();
 
-		// Now, with our corrected movement, we can now set it here, telling
-		// the physics engine we will set the rigidbody.
-		this._physicsBody!.setNextKinematicTranslation([
-			pos[0] + corrected.x,
-			pos[1] + corrected.y,
-			pos[2] + corrected.z,
-		]);
+		// Apply the physics-corrected movement so _location stays in sync
+		// with where the rigidbody actually ends up (no clipping through terrain).
+		pos[0] += corrected.x;
+		pos[1] += corrected.y;
+		pos[2] += corrected.z;
+
+		this._physicsBody!.setNextKinematicTranslation([pos[0], pos[1], pos[2]]);
 
 		vec3.set(Engine.visual.camera.location.position,
-			this._location!.position[0],
-			this._location!.position[1] + this.eyeHeight,
-			this._location!.position[2]
+			pos[0],
+			pos[1] + this.eyeHeight,
+			pos[2]
 		);
 		
 		quat.fromEuler(this._location!.rotation, this._pitch, this._yaw, 0.0);

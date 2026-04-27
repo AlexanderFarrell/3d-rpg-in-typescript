@@ -11,6 +11,7 @@ import {Terrain} from "engine/components/terrain";
 import {FirstPersonMove} from "engine/components/first_person_move"
 import {diamondSquare} from "engine/procedural/array2d_procedural"
 import { Color } from "engine/visual/color";
+import { PhysicsBody } from "engine/components/physics_body";
 
 // This is where we start the engine. The engine 
 // takes a function which it will run once started. 
@@ -60,7 +61,12 @@ Engine.start(() => {
 		// Create that tree
 		Engine.world.makeEntity(
 			location,
-			new Billboard(texture)
+			new Billboard(texture),
+			new PhysicsBody({
+				kind: 'cylinder',
+				halfHeight: 2.5,
+				radius: 0.9
+			}, 'static')
 		)
 	}
 
