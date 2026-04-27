@@ -35,4 +35,31 @@ export class Location extends Component {
 		mat4.identity(this._matrix);
 		mat4.fromRotationTranslationScale(this._matrix, this.rotation, this.position, this.scale);
 	}
+
+	// Helper to get the horizontal coordinate. +X is right. -X is left.
+	public get X() {
+		return this.position[0];
+	}
+
+	// Helper to get the vertical coordinate. +Y is up, -Z is down.
+	public get Y() {
+		return this.position[1];
+	}
+
+	// Helper to get the forward coordinate. -Z is forward, +Z is backward
+	public get Z() {
+		return this.position[2];
+	}
+
+	public set X(x: number) {
+		this.position[0] = x;
+	}
+
+	public set Y(y: number) {
+		this.position[1] = y
+	}
+
+	public set Z(z: number) {
+		this.position[2] = z;
+	}
 }
