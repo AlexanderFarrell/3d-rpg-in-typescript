@@ -70,6 +70,16 @@ export class Entity {
 		return this._components.get(kind) as T;
 	}
 
+	// Always get the component of a given type. Makes a new "default" one if
+	// it doesn't exist, and returns. Useful if a component depends on another component,
+	// like a physics component needing the location component.
+	lazyGet<T extends Component>(kind: ComponentConstructor<T>, defaultFactory: () => T): T {
+		if (!this.has(kind)) {
+			this.add(defaultFactory())
+		}
+		return this.get(kind)!
+	}
+
 	// Removes all components, calling each onEnd() function
 	clear(): void {
 		this._components.forEach(component => {

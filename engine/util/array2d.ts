@@ -39,4 +39,40 @@ export class Array2D<T> {
 	public get height() {
 		return this._height;
 	}
+
+	// Gets a point on this 2d array. If in between points, 
+	// it will get the value between then based on how close
+	// it is to each, in linear fashion. 
+	public bilinear_interpolation(x: number, y: number) {
+		const x0 = Math.floor(x);
+		const y0 = Math.floor(y);
+		const x1 = x0 + 1;
+		const y1 = y0 + 1;
+		const amoX = x - x0;
+		const amoY = y - y0;
+
+		const x0y0 = (this.get(x0, y0) as number) ?? 0;
+		const x1y0 = (this.get(x1, y0) as number) ?? 0;
+		const x0y1 = (this.get(x0, y1) as number) ?? 0;
+		const x1y1 = (this.get(x1, y1) as number) ?? 0;
+
+		const xLow = lerp(x0y0, x0y1, amoY);
+		const xHigh = lerp(x1y0, x1y1, amoY);
+		return lerp(xLow, xHigh, amoX);
+	}
+}
+
+export function getData(array: Array2D<number>): Float32Array {
+	const data = new Float32Array(array.width * array.height);
+	for (let x = 0; x < array.width; x++) {
+		for (let y = 0; y < array.height; y++) {
+			data[x * array.height + y] = array.get(x, y)!;
+		}
+	}
+	return data;
+}
+
+// Gets a value between two numbers, of a certain percent there (amo)
+function lerp(a: number, b: number, amo: number) {
+	return ((b - a) * amo) + a;
 }

@@ -1,5 +1,5 @@
 import { vec3 } from "gl-matrix";
-import { Array2D } from "../util/array2d";
+import { Array2D, getData } from "../util/array2d";
 import { Material, UniformFloat, UniformMat4, UniformVec3 } from "../visual/material";
 import { Mesh, VertexAttribute } from "../visual/mesh";
 import type { Drawable } from "../visual/visual";
@@ -8,6 +8,7 @@ import { Color } from "../visual/color";
 import { Shader, ShaderSource, ShaderType } from "../visual/shader";
 import { ColorLitFragmentGLSL, ColorLitVertexGLSL } from "../assets/asset_map";
 import { Engine } from "../main";
+import RAPIER from "@dimforge/rapier3d-compat";
 
 // Represents a landscape, and builds a geometry of triangles 
 // into a landscape
@@ -15,12 +16,15 @@ export class Terrain extends Component implements Drawable {
 	// A 2D grid of how high the terrain is at each point.
 	public heightMap: Array2D<number>;
 
+	public colorMap: Array2D<Color>;
+
 	// How big is each cell in the grid? 
 	public cellSize: number = 1;
 
 	// The geometry if made
 	private _mesh: Mesh | null = null;
 	private _material: Material | null = null;
+	private _colliderHandle: RAPIER.ColliderHandle | null = null;
 
 	// This is for storage later, by storing normals during the mesh
 	// creation, we actually speed up calculating normals by 4x, because
@@ -31,6 +35,8 @@ export class Terrain extends Component implements Drawable {
 		super();
 		this.heightMap = new Array2D(width, height, () => 1);
 		this._normalMap = new Array2D(width, height, () => [0, 1, 0] as vec3);
+		// Default to a green color
+		this.colorMap = new Array2D(width, height, () => new Color(0.3, 0.8, 0.4))
 	}
 
 	onStart(): void {
@@ -39,6 +45,9 @@ export class Terrain extends Component implements Drawable {
 
 	onEnd(): void {
 		Engine.visual.unregister(this);
+		if (this._colliderHandle) {
+			this.breakdownPhysics();
+		}
 	}
 
 	setup(): void {
@@ -91,10 +100,15 @@ export class Terrain extends Component implements Drawable {
 			let counts = 3 * 4 * (this.heightMap.width - 1) * (this.heightMap.height - 1);
 
 			this._mesh = new Mesh(
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0)), // Positions
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0)), // Normals
-				new VertexAttribute(3, ...new Array<number>(counts).fill(0))  // Colors
+				new VertexAttribute(3), // Positions
+				new VertexAttribute(3), // Normals
+				new VertexAttribute(3)  // Colors
 			);
+			for (let i = 0; i < counts; i++) {
+				this._mesh.vertexAttrs[0]?.data.push(0)
+				this._mesh.vertexAttrs[1]?.data.push(0)
+				this._mesh.vertexAttrs[2]?.data.push(0)
+			}
 			this._mesh.indices = new Array<number>(6 * (this.heightMap.width - 1) * (this.heightMap.height - 1)).fill(0);
 		}
 
@@ -172,10 +186,10 @@ export class Terrain extends Component implements Drawable {
 				setXYZArray(normals!.data, vertexOffset + 9, this._normalMap.get(x + 1, y + 1)!);
 
 				// Colors
-				setXYZArray(colors!.data, vertexOffset + 0, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 3, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 6, color.vec3);
-				setXYZArray(colors!.data, vertexOffset + 9, color.vec3);
+				setXYZArray(colors!.data, vertexOffset + 0, this.colorMap.get(x + 0, y + 0)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 3, this.colorMap.get(x + 1, y + 0)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 6, this.colorMap.get(x + 0, y + 1)!.vec3);
+				setXYZArray(colors!.data, vertexOffset + 9, this.colorMap.get(x + 1, y + 1)!.vec3);
 
 				// Indices
 				indices[indexOffset + 0] = vertexOffset/3 + 0;
@@ -191,6 +205,52 @@ export class Terrain extends Component implements Drawable {
 		}
 
 		this._mesh!.buffer();
+		this.updatePhysics();
+	}
+
+	updatePhysics() {
+		if (this._colliderHandle) {
+			this.breakdownPhysics();
+		}
+		const w = this.heightMap.width;
+		const h = this.heightMap.height;
+		const data = getData(this.heightMap);
+		const scale = {
+			x: (w - 1) * this.cellSize,
+			y: 1,
+			z: (h - 1) * this.cellSize,
+		};
+		const desc = RAPIER.ColliderDesc.heightfield(
+			w - 1,
+			h - 1,
+			data,
+			scale
+		);
+
+		// Our terrain starts at 0,0,0, but rapier's height field
+		// starts in the middle. Adjust this		
+		desc.setTranslation(
+			((w - 1) * this.cellSize) / 2,
+			0,
+			((h - 1) * this.cellSize) / 2
+		);
+
+		const collider = Engine.physics.world.createCollider(desc);
+		this._colliderHandle = collider.handle;
+	}
+
+	breakdownPhysics() {
+		if (this._colliderHandle == null) return;
+		const collider = Engine.physics.world.getCollider(this._colliderHandle);
+		if (collider) Engine.physics.world.removeCollider(collider, false);
+		this._colliderHandle = null;
+	}
+
+	public get_height_bilinear(x: number, y: number): number {
+		return this.heightMap.bilinear_interpolation(
+			x / this.cellSize,
+			y / this.cellSize
+		);
 	}
 }
 
