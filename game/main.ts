@@ -74,7 +74,8 @@ Engine.start(() => {
 	let melonTexture = Texture.fromURL(Melon);
 	for (let i = 0; i < 40; i++) {
 		let location = new Location();
-		location.position = [Random.next(0, 64), 0.5, Random.next(0, 64)];
+		location.position = [Random.next(0, 256), 0.5, Random.next(0, 256)];
+		location.Y = terrain.get_height_bilinear(location.X, location.Z);
 
 		Engine.world.makeEntity(
 			location,
