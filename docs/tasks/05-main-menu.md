@@ -1,6 +1,6 @@
 # Overview
 
-Create a main menu & pause menu for starting a new game (save and load later)
+Create a main menu & pause menu for starting a new game (save and load later),
 
 # Acceptance
 
