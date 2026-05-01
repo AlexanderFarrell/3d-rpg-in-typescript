@@ -17,11 +17,10 @@ function createWindow() {
 
 	win.removeMenu();
 
-	const isDev = process.env.NODE_ENV !== 'production';
-	if (isDev) {
-		win.loadURL('http://localhost:5173')
+	if (app.isPackaged) {
+		win.loadFile(path.join(__dirname, "../renderer/index.html"))
 	} else {
-		win.loadFile("../dist/index.html")
+		win.loadURL('http://localhost:5173')
 	}
 }
 
