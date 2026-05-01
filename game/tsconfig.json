@@ -3,6 +3,6 @@
 	"compilerOptions": {
 		"composite": true
 	},
-	"include": [".", "../engine/math", "../engine/components/location.ts"],
+	"include": [".", "../engine"],
 	"exclude": ["dist", "node_modules"]
 }

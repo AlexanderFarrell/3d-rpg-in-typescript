@@ -3,13 +3,18 @@
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
+	"main": "out/main/main.js",
 	"scripts": {
 		"dev": "vite --host",
-		"build": "tsc && vite build"
+		"build": "tsc && vite build",
+		"dev:desktop": "electron-vite dev",
+		"build:desktop": "electron-vite build"
 	},
 	"dependencies": {
 		"engine": "file:../engine",
-		"vite": "8.0.8"
+		"vite": "7.3.2",
+		"electron-vite": "5.0.0",
+		"electron": "41.3.0"
 	},
 	"devDependencies": {
 		"typescript": "^6.0.3"
