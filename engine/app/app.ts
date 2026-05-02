@@ -21,7 +21,7 @@ export class App {
 		this._stages = stages;
 		this._onSwitch = onSwitch;
 		this.requestSwitchTo(startStageName);
-		this.performSwitch();
+		// this.performSwitch();
 	}
 
 	// Changes to the given stage at the end of the
@@ -48,8 +48,16 @@ export class App {
 		})
 	}
 
-	public get Platform() {
-		
+	public get platform(): string {
+		const api = (window as any).electronAPI;
+		if (api?.isElectron) {
+			return api.platform;
+		}
+		return 'web';
+	}
+
+	public quit(): void {
+		(window as any).electronAPI?.quit();
 	}
 
 	// Actually performs the switch, calling the previous stages's

@@ -116,6 +116,15 @@ export class MenuStage extends Stage {
 			Engine.app.requestSwitchTo('Gameplay');
 		})
 
+		quitButton.addEventListener('click', () => {
+			Engine.app.quit();
+		})
+
+		if (Engine.app.platform == "web") {
+			editorButton.remove();
+			quitButton.remove();
+		}
+
 	}
 
 	on_end() {

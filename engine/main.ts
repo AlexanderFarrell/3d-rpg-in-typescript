@@ -55,6 +55,7 @@ export class Engine {
 
 	private static onSwitch() {
 		Engine.world.reset();
+		Engine.time.paused = false;
 	}
 
 	// Draws a frame

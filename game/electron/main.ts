@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from 'electron';
+import {app, BrowserWindow, ipcMain} from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,7 +9,7 @@ function createWindow() {
 		width: 1280,
 		height: 720,
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js'),
+			preload: path.join(__dirname, '../preload/preload.js'),
 			contextIsolation: true,
 			nodeIntegration: false,
 		}
@@ -23,6 +23,8 @@ function createWindow() {
 		win.loadURL('http://localhost:5173')
 	}
 }
+
+ipcMain.on('quit', () => app.quit());
 
 app.whenReady().then(() => {
 	createWindow()

@@ -25,15 +25,15 @@ canvas {
 	display: grid;
 }
 
-#main_menu {
+#main_menu, #pause_menu {
 	place-self: center;
 }
 
-#main_menu {
+#main_menu, #pause_menu {
 	color: yellow;
 }
 
-#main_menu button {
+#main_menu button, #pause_menu button {
 	color: white;
 	background-color: rgb(118, 66, 39);
 	outline: none;
@@ -44,6 +44,6 @@ canvas {
 	cursor: pointer;
 }
 
-#main_menu button:hover {
+#main_menu button:hover, #pause_menu button:hover {
 	background-color: rgb(171, 97, 58);
 }

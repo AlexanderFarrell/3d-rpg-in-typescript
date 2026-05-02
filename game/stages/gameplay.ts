@@ -10,6 +10,8 @@ import { Color } from "engine/visual/color";
 import { PhysicsBody } from "engine/components/physics_body";
 import { Engine } from "engine";
 import { MelonTexture, TreeTexture } from "../assets/asset_map";
+import { PauseHandler } from "engine/components/pause_handler";
+import { Ocean } from "engine/components/ocean";
 
 // The RPG game itself. 
 export class GameplayStage extends Stage {
@@ -46,6 +48,11 @@ export class GameplayStage extends Stage {
 
 		// Step 1. - Make tons of trees
 
+		let oceanEntity = Engine.world.makeEntity(
+			new Ocean()
+		);
+		let ocean = oceanEntity.get(Ocean)!;
+
 		// First a texture for them all
 		let texture = Texture.fromURL(TreeTexture)
 		for (let i = 0; i < 400; i++) {
@@ -54,6 +61,10 @@ export class GameplayStage extends Stage {
 			location.position = [Random.next(0, 256), 0, Random.next(0, 256)];
 			location.scale = [Random.next(1.2, 2.7), Random.next(3.3, 5.7), 1]
 			location.Y = terrain.get_height_bilinear(location.X, location.Z);
+			if (location.Y < ocean.level) {
+				// Don't make trees below water
+				continue;
+			}
 
 			// Create that tree
 			Engine.world.makeEntity(
@@ -90,6 +101,11 @@ export class GameplayStage extends Stage {
 			new Location([10, 30, 10]),
 			new FirstPersonMove()
 		)
+
+		Engine.world.makeEntity(
+			new PauseHandler()
+		);
+
 		// Place the camera in a nice starting position
 		Engine.visual.camera.location.position = [32, 3, 10]
 	}
