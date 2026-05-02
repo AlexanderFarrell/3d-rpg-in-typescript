@@ -45,7 +45,7 @@ export class Terrain extends Component implements Drawable {
 
 	onEnd(): void {
 		Engine.visual.unregister(this);
-		if (this._colliderHandle) {
+		if (this._colliderHandle != null) {
 			this.breakdownPhysics();
 		}
 	}
@@ -209,7 +209,7 @@ export class Terrain extends Component implements Drawable {
 	}
 
 	updatePhysics() {
-		if (this._colliderHandle) {
+		if (this._colliderHandle != null) {
 			this.breakdownPhysics();
 		}
 		const w = this.heightMap.width;

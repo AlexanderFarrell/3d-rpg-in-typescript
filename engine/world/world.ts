@@ -27,4 +27,12 @@ export class World {
 			updatable.onUpdate();
 		})
 	}
+
+	reset() {
+		let entities = new Set(this.entities);
+		entities.forEach(e => {
+			e.clear();
+		})
+		this.entities.clear();		
+	}
 }

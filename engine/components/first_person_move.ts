@@ -86,6 +86,10 @@ export class FirstPersonMove extends Component implements Updatable {
 
 	onEnd(): void {
 		Engine.world.updatables.delete(this);
+		if (this._controller) {
+			Engine.physics.world.removeCharacterController(this._controller);
+			this._controller = null;
+		}
 		Engine.input.unlockMouse();
 	}
 
@@ -98,8 +102,8 @@ export class FirstPersonMove extends Component implements Updatable {
 			(Engine.input.isDown('w') ? -1.0 : 0.0) + // Move forward
 			(Engine.input.isDown('s') ?  1.0 : 0.0);  // Move Backward
 
-		this._targetYaw -= Engine.input.mouseDeltaX * this.yawSensitivity;
-		this._targetPitch -= Engine.input.mouseDeltaY * this.pitchSensitivity;
+		this._targetYaw -= Engine.input.mouseDeltaX * this.yawSensitivity * Engine.time.GameSpeed;
+		this._targetPitch -= Engine.input.mouseDeltaY * this.pitchSensitivity * Engine.time.GameSpeed;
 
 		const maxPitch = 89.0;
 		this._targetPitch = Math.max(
