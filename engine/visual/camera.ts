@@ -104,7 +104,7 @@ export class PerspectiveCamera extends Camera {
 	// more accurate, whereas smaller numbers make it more difficult. I generally
 	// like 0.5 to 1.0. It's actually nice generally to let players not have some
 	// object in their face.
-	public nearPlane: number = 0.5;
+	public nearPlane: number = 1.0;
 
 	// The furthest distance by which objects are visible. If you increase this, you
 	// may need to increase the nearPlane as well.

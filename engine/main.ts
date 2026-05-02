@@ -3,6 +3,7 @@ import type { Stage } from "./app/stage";
 import { UserInput } from "./input/input";
 import { Physics } from "./physics/physics";
 import { Time } from "./time/time";
+import { UI } from "./ui/ui";
 import { Visual } from "./visual/visual";
 import { World } from "./world/world";
 
@@ -15,6 +16,7 @@ export class Engine {
 	public static input: UserInput;
 	public static time: Time;
 	public static physics: Physics;
+	public static ui: UI;
 
 	// Called to start the game engine, taking a
 	// function once set up.
@@ -25,7 +27,8 @@ export class Engine {
 		Engine.input = new UserInput();
 		Engine.time = new Time();
 		Engine.physics = new Physics();
-		Engine.app = new App(stages, startStageName);
+		Engine.ui = new UI();
+		Engine.app = new App(stages, startStageName, () => {Engine.onSwitch()});
 		Engine.loop();
 	}
 
@@ -48,6 +51,10 @@ export class Engine {
 	private static update() {
 		Engine.world.update();
 		Engine.physics.update(Engine.time);
+	}
+
+	private static onSwitch() {
+		Engine.world.reset();
 	}
 
 	// Draws a frame

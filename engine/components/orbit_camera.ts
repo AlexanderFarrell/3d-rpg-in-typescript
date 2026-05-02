@@ -57,7 +57,7 @@ export class OrbitCamera extends Component implements Updatable {
 
 		quat.fromEuler(
 			Engine.visual.camera.location.rotation,
-			-45 * (this.lift / this.distance),
+			-Math.atan2(this.lift, this.distance) * (180 / Math.PI),
 			this.rotation,
 			0
 		);

@@ -14,9 +14,12 @@ export class App {
 	// aren't interruptions in gameplay logic.
 	private _futureStage: Stage | null = null;
 
+	private _onSwitch: () => void;
+
 	// Makes a new app and runs the first stage.
-	public constructor(stages: Stage[], startStageName: string) {
+	public constructor(stages: Stage[], startStageName: string, onSwitch: () => void) {
 		this._stages = stages;
+		this._onSwitch = onSwitch;
 		this.requestSwitchTo(startStageName);
 		this.performSwitch();
 	}
@@ -45,6 +48,10 @@ export class App {
 		})
 	}
 
+	public get Platform() {
+		
+	}
+
 	// Actually performs the switch, calling the previous stages's
 	// on_end() function for cleanup, and the new stages on_start()
 	// for setup.
@@ -52,6 +59,7 @@ export class App {
 		console.log(`Switching from ${this._currentStage?.name()} to ${this._futureStage?.name()}`);
 		this._currentStage?.on_end();
 		this._currentStage = this._futureStage;
+		this._onSwitch();
 		this._currentStage?.on_start();
 		this._futureStage = null;
 	}

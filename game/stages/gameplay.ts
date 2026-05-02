@@ -2,8 +2,6 @@ import { Stage } from "engine/app/stage";
 import { Location } from "engine/components/location";
 import {Billboard} from "engine/components/billboard";
 import { Texture } from "engine/visual/texture";
-import Tree from "./../assets/tree.png";
-import Melon from "./../assets/melon.png";
 import {Random} from "engine/util/random";
 import {Terrain} from "engine/components/terrain";
 import {FirstPersonMove} from "engine/components/first_person_move"
@@ -11,6 +9,7 @@ import {diamondSquare} from "engine/procedural/array2d_procedural"
 import { Color } from "engine/visual/color";
 import { PhysicsBody } from "engine/components/physics_body";
 import { Engine } from "engine";
+import { MelonTexture, TreeTexture } from "../assets/asset_map";
 
 // The RPG game itself. 
 export class GameplayStage extends Stage {
@@ -48,7 +47,7 @@ export class GameplayStage extends Stage {
 		// Step 1. - Make tons of trees
 
 		// First a texture for them all
-		let texture = Texture.fromURL(Tree)
+		let texture = Texture.fromURL(TreeTexture)
 		for (let i = 0; i < 400; i++) {
 			// Find a spot for each tree
 			let location = new Location();
@@ -69,7 +68,7 @@ export class GameplayStage extends Stage {
 		}
 
 		// Step 1.5 - Add lots of melon
-		let melonTexture = Texture.fromURL(Melon);
+		let melonTexture = Texture.fromURL(MelonTexture);
 		for (let i = 0; i < 40; i++) {
 			let location = new Location();
 			location.position = [Random.next(0, 256), 0.5, Random.next(0, 256)];
