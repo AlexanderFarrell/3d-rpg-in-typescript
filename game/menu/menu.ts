@@ -116,6 +116,10 @@ export class MenuStage extends Stage {
 			Engine.app.requestSwitchTo('Gameplay');
 		})
 
+		editorButton.addEventListener('click', () => {
+			Engine.app.requestSwitchTo('Editor');
+		})
+
 		quitButton.addEventListener('click', () => {
 			Engine.app.quit();
 		})

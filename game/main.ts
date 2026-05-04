@@ -1,9 +1,9 @@
 import {Engine} from "engine";
 import "./assets/style.css";
 import { Stage } from "engine/app/stage";
-import { MenuStage } from "./stages/menu";
-import { GameplayStage } from "./stages/gameplay";
-import { EditorStage } from "./stages/editor";
+import { MenuStage } from "./menu/menu";
+import { GameplayStage } from "./gameplay/gameplay";
+import { EditorStage } from "./editor/editor";
 
 let stages: Stage[] = [
 	new MenuStage(),
@@ -11,4 +11,4 @@ let stages: Stage[] = [
 	new EditorStage()
 ];
 
-Engine.start(stages, "Menu");
+Engine.start(stages, "Editor");

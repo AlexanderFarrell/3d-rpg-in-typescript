@@ -3,6 +3,7 @@ import { defineConfig } from "electron-vite";
 import config from './vite.config'
 
 export default defineConfig({
+	outDir: '../build/out',
 	main: {
 		build: {
 			rollupOptions: {

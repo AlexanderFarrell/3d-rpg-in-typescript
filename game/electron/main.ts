@@ -6,8 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function createWindow() {
 	const win = new BrowserWindow({
-		width: 1280,
-		height: 720,
+		width: 1920,
+		height: 1080,
 		webPreferences: {
 			preload: path.join(__dirname, '../preload/preload.js'),
 			contextIsolation: true,
@@ -15,7 +15,7 @@ function createWindow() {
 		}
 	});
 
-	win.removeMenu();
+	// win.removeMenu();
 
 	if (app.isPackaged) {
 		win.loadFile(path.join(__dirname, "../renderer/index.html"))

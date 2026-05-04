@@ -15,14 +15,17 @@
 		"build:desktop:linux": "electron-vite build && electron-builder --linux"
 	},
 	"dependencies": {
+		"electron-vite": "5.0.0",
 		"engine": "file:../engine",
+		"mitt": "^3.0.1",
 		"vite": "7.3.2",
-		"electron-vite": "5.0.0"
+		"vue": "^3.5.33"
 	},
 	"devDependencies": {
-		"typescript": "^6.0.3",
+		"@vitejs/plugin-vue": "^6.0.6",
+		"electron": "41.3.0",
 		"electron-builder": "26.8.1",
-		"electron": "41.3.0"
+		"typescript": "^6.0.3"
 	},
 	"build": {
 		"appId": "com.alexanderfarrell.rpgintypescript",
@@ -35,13 +38,20 @@
 			"output": "release"
 		},
 		"linux": {
-			"target": ["AppImage"]
+			"target": [
+				"AppImage"
+			]
 		},
 		"win": {
-			"target": ["nsis", "portable"]
+			"target": [
+				"nsis",
+				"portable"
+			]
 		},
 		"mac": {
-			"target": ["dmg"]
+			"target": [
+				"dmg"
+			]
 		}
 	}
 }
