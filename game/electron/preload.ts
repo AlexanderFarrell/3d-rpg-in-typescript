@@ -1,8 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld('electronAPI', {
-	isElectron: true,
-	platform: process.platform,
-	quit: () => ipcRenderer.send('quit')
+    isElectron: true,
+    platform: process.platform,
+    quit: () => ipcRenderer.send('quit'),
+    projects: {
+        create: (projectName: string) => ipcRenderer.invoke("project:create", projectName),
+    }
 });
 
