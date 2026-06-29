@@ -120,6 +120,10 @@ export class MenuStage extends Stage {
 			Engine.app.quit();
 		})
 
+		editorButton.addEventListener('click', () => {
+			Engine.app.requestSwitchTo('Editor');
+		})
+
 		if (Engine.app.platform == "web") {
 			editorButton.remove();
 			quitButton.remove();
